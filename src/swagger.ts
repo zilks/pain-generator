@@ -135,7 +135,6 @@ const options: swaggerJsdoc.Options = {
                       debtor: {
                         name: 'Muster AG',
                         iban: 'CH9300762011623852957',
-                        bic: 'BANKCH22XXX',
                       },
                       transactions: [
                         {
@@ -143,18 +142,9 @@ const options: swaggerJsdoc.Options = {
                           amount: 1.00,
                           currency: 'CHF',
                           creditorIban: 'CH5604835012345678009',
-                          creditorIid: '769',
                           creditor: {
-                            name: 'Empfänger GmbH',
-                            postalAddress: {
-                              streetName: 'Hauptstrasse',
-                              buildingNumber: '1',
-                              postCode: '4001',
-                              townName: 'Basel',
-                              country: 'CH',
-                            },
-                          },
-                          remittanceInfoStructured: 'Zusatzinfo: QR-IBAN BANK, QR-Ref, CdtrAgt IID',
+                            name: 'Empfänger GmbH'
+                          }
                         },
                       ],
                     },
@@ -168,7 +158,6 @@ const options: swaggerJsdoc.Options = {
                       debtor: {
                         name: 'Muster AG',
                         iban: 'CH9300762011623852957',
-                        bic: 'BANKCH22XXX',
                       },
                       transactions: [
                         { sequenceNumber: 1, amount: 1.00, currency: 'CHF', creditorIban: 'CH5604835012345678009', creditor: { name: 'Empfänger 1' } },
