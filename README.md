@@ -1,8 +1,13 @@
 # PAIN.001 Generator – Express Backend
 
 [![CI / CD](https://github.com/zilks/pain-generator/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/zilks/pain-generator/actions/workflows/ci-cd.yml)
+[![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
 
 Express-Backend (TypeScript) zur Generierung von PAIN.001-XML-Dateien nach Schweizer SIX-Standard.
+
+> ⚠️ **Disclaimer**
+> Dieses Projekt wurde **nicht** von einem Fachexperten (z.B. Zahlungsverkehrsspezialist oder zertifiziertem ISO-20022-Berater) erstellt. Es besteht **keine Gewähr** auf die fachliche oder technische Korrektheit der generierten XML-Dateien sowie der Dokumentation.
+> Die generierten PAIN.001-Dateien sind **ausschliesslich für Testzwecke** gedacht und dürfen **nicht** für produktive Zahlungsaufträge oder den Einsatz im Rahmen von Bankprozessen verwendet werden.
 
 ## Unterstützte Versionen
 
@@ -10,6 +15,18 @@ Express-Backend (TypeScript) zur Generierung von PAIN.001-XML-Dateien nach Schwe
 |---------|--------|-----------|
 | `v2009` | `pain.001.001.03.ch.02.xsd` | `http://www.six-interbank-clearing.com/de/pain.001.001.03.ch.02.xsd` |
 | `v2019` | `pain.001.001.09.ch.03.xsd` | `urn:iso:std:iso:20022:tech:xsd:pain.001.001.09` |
+
+### Unterschiede v2009 vs. v2019
+
+Die Request-Parameter sind für beide Versionen identisch. Die Unterschiede betreffen ausschliesslich die generierte XML-Struktur:
+
+| Merkmal | v2009 | v2019 |
+|---------|-------|-------|
+| **Namespace** | `http://www.six-interbank-clearing.com/de/pain.001.001.03.ch.02.xsd` | `urn:iso:std:iso:20022:tech:xsd:pain.001.001.09` |
+| **Ausführungsdatum** | `<ReqdExctnDt>2025-09-29</ReqdExctnDt>` | `<ReqdExctnDt><Dt>2025-09-29</Dt></ReqdExctnDt>` |
+| **BIC-Element** | `<BIC>BANKCH22XXX</BIC>` | `<BICFI>BANKCH22XXX</BICFI>` |
+| **Postadresse Kreditor** | Mit `<AdrTp>` erlaubt | Ohne `<AdrTp>` (`PostalAddress24_pain001_ch_3`) |
+| **Standard seit** | 2009 | 2020 (ISO 20022 pain.001.001.09) |
 
 ## Deployment (Render)
 
@@ -53,6 +70,8 @@ Content-Type: application/json
 ```
 
 ## Request-Parameter
+
+> Die Parameter gelten für beide Versionen (`v2009` und `v2019`) gleichermassen. Der gewünschte Standard wird über das Feld `version` gesteuert. Die Unterschiede zwischen den Versionen betreffen ausschliesslich die XML-Ausgabe – siehe [Unterschiede v2009 vs. v2019](#unterschiede-v2009-vs-v2019).
 
 | Feld | Typ | Pflicht | Beschreibung |
 |------|-----|---------|--------------|
@@ -149,6 +168,92 @@ POST /api/generate-pain001
   "executionDate": "2025-09-29",
   "testRunId": "VERI-03",
   "version": "v2009",
+  "debtor": {
+    "name": "Muster AG",
+    "iban": "CH9300762011623852957",
+    "bic": "BANKCH22XXX"
+  },
+  "transactions": [
+    { "sequenceNumber": 1, "amount": 1.00, "currency": "CHF", "creditorIban": "CH5604835012345678009", "creditor": { "name": "Empfänger 1" } },
+    { "sequenceNumber": 2, "amount": 1.00, "currency": "CHF", "creditorIban": "CH5604835012345678009", "creditor": { "name": "Empfänger 2" } },
+    { "sequenceNumber": 3, "amount": 1.00, "currency": "CHF", "creditorIban": "CH5604835012345678009", "creditor": { "name": "Empfänger 3" } },
+    { "sequenceNumber": 4, "amount": 1.00, "currency": "CHF", "creditorIban": "CH5604835012345678009", "creditor": { "name": "Empfänger 4" } },
+    { "sequenceNumber": 5, "amount": 1.00, "currency": "CHF", "creditorIban": "CH5604835012345678009", "creditor": { "name": "Empfänger 5" } }
+  ]
+}
+```
+> `NbOfTxs` (5) und `CtrlSum` (5.00) werden automatisch berechnet.
+
+## Beispiel-Request (v2019 – simple Variante)
+
+```json
+POST /api/generate-pain001
+{
+  "executionDate": "2025-09-29",
+  "testRunId": "VERI-01",
+  "version": "v2019",
+  "debtor": {
+    "name": "Muster AG",
+    "iban": "CH9300762011623852957"
+  },
+  "transactions": [
+    {
+      "sequenceNumber": 1,
+      "amount": 1.00,
+      "currency": "CHF",
+      "creditorIban": "CH5604835012345678009",
+      "creditor": {
+        "name": "Empfänger GmbH"
+      }
+    }
+  ]
+}
+```
+
+## Beispiel-Request (v2019 – 1 Transaktion)
+
+```json
+POST /api/generate-pain001
+{
+  "executionDate": "2025-09-29",
+  "testRunId": "VERI-01",
+  "version": "v2019",
+  "debtor": {
+    "name": "Muster AG",
+    "iban": "CH9300762011623852957",
+    "bic": "BANKCH22XXX"
+  },
+  "transactions": [
+    {
+      "sequenceNumber": 1,
+      "amount": 1.00,
+      "currency": "CHF",
+      "creditorIban": "CH5604835012345678009",
+      "creditorIid": "769",
+      "creditor": {
+        "name": "Empfänger GmbH",
+        "postalAddress": {
+          "streetName": "Hauptstrasse",
+          "buildingNumber": "1",
+          "postCode": "4001",
+          "townName": "Basel",
+          "country": "CH"
+        }
+      },
+      "remittanceInfoStructured": "Zusatzinfo: QR-IBAN BANK, QR-Ref, CdtrAgt IID"
+    }
+  ]
+}
+```
+> Im generierten XML wird `<BIC>` durch `<BICFI>` ersetzt und `<ReqdExctnDt>` ist in `<Dt>` gewrappt.
+
+## Beispiel-Request (v2019 – 5 Transaktionen)
+
+```json
+{
+  "executionDate": "2025-09-29",
+  "testRunId": "VERI-03",
+  "version": "v2019",
   "debtor": {
     "name": "Muster AG",
     "iban": "CH9300762011623852957",
