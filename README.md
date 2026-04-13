@@ -18,13 +18,8 @@ Der Service wird automatisch via GitHub Actions auf [Render](https://render.com)
 ### Basis-URL
 
 ```
-https://<dein-service-name>.onrender.com
+https://pain-generator.onrender.com
 ```
-
-| URL | Beschreibung |
-|-----|--------------|
-| `https://<dein-service-name>.onrender.com/api` | Swagger UI |
-| `POST https://<dein-service-name>.onrender.com/api/generate-pain001` | Endpunkt |
 
 > Den genauen Service-Namen findest du im Render Dashboard unter **Settings → Custom Domains** resp. direkt in der Service-Übersicht.
 
@@ -36,6 +31,17 @@ Request-Body: siehe Beispiel-Request weiter unten
 ````
 
 > **Hinweis:** Render schaltet Web Services auf dem kostenlosen Plan nach ~15 Minuten Inaktivität schlafen. Der erste Request nach einer Schlafphase kann 30–60 Sekunden dauern (Cold Start).
+
+---
+
+## Swagger Dokumentation
+
+Die interaktive API-Dokumentation ist unter dem `/api`-Pfad erreichbar und erlaubt es, Requests direkt im Browser abzusetzen.
+
+| Umgebung | URL |
+|----------|-----|
+| Lokal | `http://localhost:8080/api` |
+| Render | `https://pain-generator.onrender.com/api` |
 
 ---
 
@@ -179,11 +185,6 @@ npm install
 npm start        # Baut TypeScript und startet den Express-Server
 npm test         # Jest-Tests
 ```
-
-| URL | Beschreibung |
-|-----|--------------|
-| `http://localhost:8080/api` | Swagger UI |
-| `POST http://localhost:8080/api/generate-pain001` | Endpunkt |
 
 ## Fehler-Antworten
 
