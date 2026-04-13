@@ -1,5 +1,5 @@
 import { describe, it, expect } from '@jest/globals';
-import { swaggerSpec } from '../src/swagger';
+import { swaggerSpec } from '../../src/swagger';
 
 // ─────────────────────────────────────────────────────────────
 // Swagger Specification
@@ -67,6 +67,4 @@ describe('swaggerSpec', () => {
   });
 
 });
-
-
 
