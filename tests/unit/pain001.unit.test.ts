@@ -371,7 +371,7 @@ describe('XML Builder v2009', () => {
 });
 
 // ─────────────────────────────────────────────────────────────
-// XML Builder – v2019 (builder level, not production-ready yet)
+// XML Builder – v2019
 // ─────────────────────────────────────────────────────────────
 describe('XML Builder v2019', () => {
   const resolved: ResolvedPain001Request = {
@@ -407,7 +407,32 @@ describe('XML Builder v2019', () => {
 
   it('contains correct v2019 namespace', () => {
     const xml = buildV2019(resolved);
-    expect(xml).toContain('http://www.six-interbank-clearing.com/de/pain.001.001.09.ch.03.xsd');
+    expect(xml).toContain('urn:iso:std:iso:20022:tech:xsd:pain.001.001.09');
+  });
+
+  it('contains MsgId', () => {
+    expect(buildV2019(resolved)).toContain('<MsgId>MSG-VERI-01-2025-09-29</MsgId>');
+  });
+
+  it('contains NbOfTxs = 1', () => {
+    expect(buildV2019(resolved)).toContain('<NbOfTxs>1</NbOfTxs>');
+  });
+
+  it('contains CtrlSum = 2.50', () => {
+    expect(buildV2019(resolved)).toContain('<CtrlSum>2.50</CtrlSum>');
+  });
+
+  it('contains PmtMtd = TRF', () => {
+    expect(buildV2019(resolved)).toContain('<PmtMtd>TRF</PmtMtd>');
+  });
+
+  it('BtchBookg false is rendered correctly', () => {
+    expect(buildV2019(resolved)).toContain('<BtchBookg>false</BtchBookg>');
+  });
+
+  it('BtchBookg true is rendered correctly', () => {
+    const req = { ...resolved, batchBooking: true };
+    expect(buildV2019(req)).toContain('<BtchBookg>true</BtchBookg>');
   });
 
   it('ReqdExctnDt is nested inside <Dt>', () => {
@@ -416,19 +441,94 @@ describe('XML Builder v2019', () => {
     expect(xml).toContain('<Dt>2025-09-29</Dt>');
   });
 
-  it('uses BICFI instead of BIC', () => {
-    const xml = buildV2019(resolved);
-    expect(xml).toContain('<BICFI>BANKCH22XXX</BICFI>');
+  it('contains debtor IBAN', () => {
+    expect(buildV2019(resolved)).toContain('<IBAN>CH9300762011623852957</IBAN>');
   });
 
-  it('PstlAdr contains AdrTp STRUCTURED', () => {
+  it('uses BICFI instead of BIC for debtor agent', () => {
     const xml = buildV2019(resolved);
-    expect(xml).toContain('<Cd>STRUCTURED</Cd>');
+    expect(xml).toContain('<BICFI>BANKCH22XXX</BICFI>');
+    expect(xml).not.toContain('<BIC>');
+  });
+
+  it('debtor agent with IID instead of BICFI', () => {
+    const req = { ...resolved, debtor: { name: 'Test AG', iban: 'CH9300762011623852957', iid: '80808' } };
+    const xml = buildV2019(req);
+    expect(xml).toContain('<MmbId>80808</MmbId>');
+    expect(xml).not.toContain('<BICFI>BANKCH22XXX</BICFI>');
+  });
+
+  it('initiatingPartyName overrides debtor name', () => {
+    const req = { ...resolved, initiatingPartyName: 'Treasury Dept' };
+    expect(buildV2019(req)).toContain('<Nm>Treasury Dept</Nm>');
+  });
+
+  it('contains correct InstrId and EndToEndId', () => {
+    const xml = buildV2019(resolved);
+    expect(xml).toContain('<InstrId>INS-VERI-01-01-2025-09-29</InstrId>');
+    expect(xml).toContain('<EndToEndId>E2E-VERI-01-01-2025-09-29</EndToEndId>');
+  });
+
+  it('uses BICFI instead of BIC for creditor agent', () => {
+    const xml = buildV2019(resolved);
+    expect(xml).toContain('<BICFI>POFICHBEXXX</BICFI>');
+  });
+
+  it('creditor agent with IID (ClrSysMmbId)', () => {
+    const req = {
+      ...resolved,
+      transactions: [{ ...resolved.transactions[0], creditorBic: undefined, creditorIid: '769' }],
+    };
+    const xml = buildV2019(req);
+    expect(xml).toContain('<MmbId>769</MmbId>');
+    expect(xml).not.toContain('<BICFI>POFICHBEXXX</BICFI>');
+  });
+
+  it('PstlAdr contains direct address fields (no AdrTp – PostalAddress24_pain001_ch_3)', () => {
+    const xml = buildV2019(resolved);
+    expect(xml).not.toContain('<AdrTp>');
+    expect(xml).toContain('<StrtNm>Bahnhofstrasse</StrtNm>');
+    expect(xml).toContain('<BldgNb>10</BldgNb>');
+    expect(xml).toContain('<PstCd>8001</PstCd>');
+    expect(xml).toContain('<TwnNm>Zürich</TwnNm>');
+    expect(xml).toContain('<Ctry>CH</Ctry>');
   });
 
   it('contains unstructured remittance information', () => {
     const xml = buildV2019(resolved);
     expect(xml).toContain('<Ustrd>Payment April 2025</Ustrd>');
+  });
+
+  it('contains structured remittance information', () => {
+    const req = {
+      ...resolved,
+      transactions: [{ ...resolved.transactions[0], remittanceInfoUnstructured: undefined, remittanceInfoStructured: 'Invoice 2025-001' }],
+    };
+    expect(buildV2019(req)).toContain('<AddtlRmtInf>Invoice 2025-001</AddtlRmtInf>');
+  });
+
+  it('no RmtInf block when no remittance info is provided', () => {
+    const req = {
+      ...resolved,
+      transactions: [{ ...resolved.transactions[0], remittanceInfoUnstructured: undefined, remittanceInfoStructured: undefined }],
+    };
+    expect(buildV2019(req)).not.toContain('<RmtInf>');
+  });
+
+  it('multiple transactions produce multiple CdtTrfTxInf blocks', () => {
+    const req = {
+      ...resolved,
+      nbOfTxs: 3,
+      ctrlSum: 6.00,
+      transactions: [
+        { sequenceNumber: 1, amount: 1.00, currency: 'CHF', creditorIban: 'CH9300762011623852957', creditor: { name: 'A' } },
+        { sequenceNumber: 2, amount: 2.00, currency: 'CHF', creditorIban: 'CH9300762011623852957', creditor: { name: 'B' } },
+        { sequenceNumber: 3, amount: 3.00, currency: 'CHF', creditorIban: 'CH9300762011623852957', creditor: { name: 'C' } },
+      ],
+    };
+    const xml = buildV2019(req);
+    const matches = xml.match(/<CdtTrfTxInf>/g);
+    expect(matches).toHaveLength(3);
   });
 });
 

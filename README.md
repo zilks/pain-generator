@@ -9,7 +9,7 @@ Express-Backend (TypeScript) zur Generierung von PAIN.001-XML-Dateien nach Schwe
 | Version | Schema | Namespace |
 |---------|--------|-----------|
 | `v2009` | `pain.001.001.03.ch.02.xsd` | `http://www.six-interbank-clearing.com/de/pain.001.001.03.ch.02.xsd` |
-| `v2019` | `pain.001.001.09.ch.03.xsd` | `http://www.six-interbank-clearing.com/de/pain.001.001.09.ch.03.xsd` |
+| `v2019` | `pain.001.001.09.ch.03.xsd` | `urn:iso:std:iso:20022:tech:xsd:pain.001.001.09` |
 
 ## Deployment (Render)
 
@@ -20,6 +20,7 @@ Der Service wird automatisch via GitHub Actions auf [Render](https://render.com)
 ```
 https://pain-generator.onrender.com
 ```
+
 #### Beispiel-Aufruf
 
 ````

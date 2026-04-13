@@ -6,8 +6,7 @@
 import { validatePain001Request } from './validation/pain001.validator';
 import { resolveNbOfTxs, resolveCtrlSum } from './utils/calculator';
 import { buildV2009 } from './builder/pain001v2009.builder';
-// TODO [v2019]: buildV2019 is not production-ready yet – import will be re-enabled once implementation is complete
-// import { buildV2019 } from './builder/pain001v2019.builder';
+import { buildV2019 } from './builder/pain001v2019.builder';
 import { Pain001Request, ResolvedPain001Request } from './types/pain001.types';
 
 export interface HandlerRequest {
@@ -51,23 +50,9 @@ export async function handleGeneratePain001(
   };
 
   // 3. Generate XML
-  if (resolved.version === 'v2019') {
-    console.warn(`[501] v2019 not implemented – testRunId=${resolved.testRunId}`);
-    return {
-      status: 501,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        error: 'Not implemented',
-        details:
-          'PAIN.001 v2019 (pain.001.001.09.ch.03) generation is not yet complete. ' +
-          'The XSD required for validation is missing. Please use version "v2009".',
-      }),
-    };
-  }
-
   let xml: string;
   try {
-    xml = buildV2009(resolved);
+    xml = resolved.version === 'v2019' ? buildV2019(resolved) : buildV2009(resolved);
   } catch (err) {
     console.error(`[500] XML generation failed – testRunId=${resolved.testRunId}:`, err);
     return {
