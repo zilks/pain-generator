@@ -166,6 +166,57 @@ const options: swaggerJsdoc.Options = {
                       ],
                     },
                   },
+                  'v2019 – 1 Transaktion': {
+                    summary: 'v2019 mit einer Transaktion (BICFI, ReqdExctnDt/Dt)',
+                    value: {
+                      executionDate: '2025-09-29',
+                      testRunId: 'VERI-01',
+                      version: 'v2019',
+                      debtor: {
+                        name: 'Muster AG',
+                        iban: 'CH9300762011623852957',
+                        bic: 'BANKCH22XXX',
+                      },
+                      transactions: [
+                        {
+                          sequenceNumber: 1,
+                          amount: 1.00,
+                          currency: 'CHF',
+                          creditorIban: 'CH5604835012345678009',
+                          creditorIid: '769',
+                          creditor: {
+                            name: 'Empfänger GmbH',
+                            postalAddress: {
+                              streetName: 'Hauptstrasse',
+                              buildingNumber: '1',
+                              postCode: '4001',
+                              townName: 'Basel',
+                              country: 'CH',
+                            },
+                          },
+                          remittanceInfoStructured: 'Zusatzinfo: QR-IBAN BANK, QR-Ref, CdtrAgt IID',
+                        },
+                      ],
+                    },
+                  },
+                  'v2019 – 3 Transaktionen': {
+                    summary: 'v2019 mit drei Transaktionen (NbOfTxs/CtrlSum auto)',
+                    value: {
+                      executionDate: '2025-09-29',
+                      testRunId: 'VERI-03',
+                      version: 'v2019',
+                      debtor: {
+                        name: 'Muster AG',
+                        iban: 'CH9300762011623852957',
+                        bic: 'BANKCH22XXX',
+                      },
+                      transactions: [
+                        { sequenceNumber: 1, amount: 1.00, currency: 'CHF', creditorIban: 'CH5604835012345678009', creditor: { name: 'Empfänger 1' } },
+                        { sequenceNumber: 2, amount: 2.50, currency: 'CHF', creditorIban: 'CH5604835012345678009', creditor: { name: 'Empfänger 2' } },
+                        { sequenceNumber: 3, amount: 3.75, currency: 'CHF', creditorIban: 'CH5604835012345678009', creditor: { name: 'Empfänger 3' } },
+                      ],
+                    },
+                  },
                 },
               },
             },
