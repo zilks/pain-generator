@@ -1,6 +1,6 @@
-# PAIN.001 Generator – Azure Function
+# PAIN.001 Generator – Express Backend
 
-Azure Function (TypeScript, v4) zur Generierung von PAIN.001-XML-Dateien nach Schweizer SIX-Standard.
+Express-Backend (TypeScript) zur Generierung von PAIN.001-XML-Dateien nach Schweizer SIX-Standard.
 
 ## Unterstützte Versionen
 
@@ -80,7 +80,7 @@ POST /api/generate-pain001
 }
 ```
 
-## Beispiel-Request (v2009 – 5 Transaktionen mit expliziten Werten)
+## Beispiel-Request (v2009 – 5 Transaktionen)
 
 ```json
 {
@@ -120,7 +120,7 @@ Content-Disposition: attachment; filename="pain001_VERI-01_2025-09-29_v2009.xml"
 
 ```bash
 npm install
-npm start        # Baut TypeScript und startet Azure Functions Core Tools
+npm start        # Baut TypeScript und startet den Express-Server
 npm test         # Jest-Tests
 ```
 
@@ -131,4 +131,3 @@ npm test         # Jest-Tests
 | `400` | Request body kein gültiges JSON |
 | `422` | Validierungsfehler (Details im JSON-Body) |
 | `500` | XML-Generierung intern fehlgeschlagen |
-

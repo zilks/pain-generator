@@ -1,6 +1,6 @@
 // ============================================================
-// Core handler – framework-agnostic (no Azure imports)
-// Used by both the Azure Function and the local Express server.
+// Core handler – framework-agnostic
+// Used by the Express server (src/server.ts).
 // ============================================================
 
 import { validatePain001Request } from './validation/pain001.validator';

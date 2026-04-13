@@ -1,48 +1,33 @@
 // ============================================================
-// Local HTTP server – replacement for Azure Functions Core Tools
-// Serves the endpoint at http://localhost:7071/api/generate-pain001
-// (same URL as func start → no changes needed in clients)
-//
-// Start locally: npm run serve
-// Deploy to Azure: npm run start  (Azure Functions Core Tools)
+// Express HTTP server – PAIN.001 Generator
+// Endpoint: POST /api/generate-pain001
+// Start: npm start
 // ============================================================
 
-import http from 'http';
+import express, { Request, Response } from 'express';
 import { handleGeneratePain001 } from './pain001.handler';
 
+const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 7071;
 const ROUTE = '/api/generate-pain001';
 
-const server = http.createServer(async (req, res) => {
-  // Accept POST requests on the expected route only
-  if (req.method !== 'POST' || req.url !== ROUTE) {
-    res.writeHead(404, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ error: `Unknown endpoint. Please use POST ${ROUTE}.` }));
-    return;
+app.use(express.json());
+
+app.post(ROUTE, async (req: Request, res: Response) => {
+  const result = await handleGeneratePain001(req.body);
+
+  res.status(result.status);
+  for (const [key, value] of Object.entries(result.headers)) {
+    res.setHeader(key, value);
   }
-
-  // Read request body
-  const chunks: Buffer[] = [];
-  req.on('data', (chunk: Buffer) => chunks.push(chunk));
-  req.on('end', async () => {
-    let body: unknown;
-    try {
-      body = JSON.parse(Buffer.concat(chunks).toString('utf-8'));
-    } catch {
-      res.writeHead(400, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Request body is not valid JSON.' }));
-      return;
-    }
-
-    // Invoke core handler (identical to the Azure Function)
-    const result = await handleGeneratePain001(body);
-
-    res.writeHead(result.status, result.headers);
-    res.end(result.body);
-  });
+  res.send(result.body);
 });
 
-server.listen(PORT, () => {
-  console.log(`✅  Local PAIN.001 server running at http://localhost:${PORT}${ROUTE}`);
+app.use((_req: Request, res: Response) => {
+  res.status(404).json({ error: `Unknown endpoint. Please use POST ${ROUTE}.` });
+});
+
+app.listen(PORT, () => {
+  console.log(`✅  PAIN.001 server running at http://localhost:${PORT}${ROUTE}`);
   console.log(`   POST http://localhost:${PORT}${ROUTE}`);
 });
