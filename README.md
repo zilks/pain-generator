@@ -18,10 +18,15 @@ Der Service wird automatisch via GitHub Actions auf [Render](https://render.com)
 ### Basis-URL
 
 ```
-https://pain-generator.onrender.com
+https://<dein-service-name>.onrender.com
 ```
 
-### Beispiel-Aufruf gegen den Render-Service
+| URL | Beschreibung |
+|-----|--------------|
+| `https://<dein-service-name>.onrender.com/api` | Swagger UI |
+| `POST https://<dein-service-name>.onrender.com/api/generate-pain001` | Endpunkt |
+
+> Den genauen Service-Namen findest du im Render Dashboard unter **Settings → Custom Domains** resp. direkt in der Service-Übersicht.
 
 ````
 POST https://pain-generator.onrender.com/api/generate-pain001
@@ -174,6 +179,11 @@ npm install
 npm start        # Baut TypeScript und startet den Express-Server
 npm test         # Jest-Tests
 ```
+
+| URL | Beschreibung |
+|-----|--------------|
+| `http://localhost:8080/api` | Swagger UI |
+| `POST http://localhost:8080/api/generate-pain001` | Endpunkt |
 
 ## Fehler-Antworten
 
