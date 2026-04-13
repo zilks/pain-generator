@@ -1,5 +1,7 @@
 # PAIN.001 Generator – Express Backend
 
+[![CI / CD](https://github.com/zilks/pain-generator/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/zilks/pain-generator/actions/workflows/ci-cd.yml)
+
 Express-Backend (TypeScript) zur Generierung von PAIN.001-XML-Dateien nach Schweizer SIX-Standard.
 
 ## Unterstützte Versionen
@@ -8,6 +10,31 @@ Express-Backend (TypeScript) zur Generierung von PAIN.001-XML-Dateien nach Schwe
 |---------|--------|-----------|
 | `v2009` | `pain.001.001.03.ch.02.xsd` | `http://www.six-interbank-clearing.com/de/pain.001.001.03.ch.02.xsd` |
 | `v2019` | `pain.001.001.09.ch.03.xsd` | `http://www.six-interbank-clearing.com/de/pain.001.001.09.ch.03.xsd` |
+
+## Deployment (Render)
+
+Der Service wird automatisch via GitHub Actions auf [Render](https://render.com) deployed, sobald ein Push auf den `main`-Branch erfolgt.
+
+### Basis-URL
+
+```
+https://pain-generator.onrender.com
+```
+
+> Den genauen Service-Namen findest du im Render Dashboard unter **Settings → Custom Domains** resp. direkt in der Service-Übersicht.
+
+### Beispiel-Aufruf gegen den Render-Service
+
+````
+POST https://pain-generator.onrender.com/api/generate-pain001
+Content-Type: application/json
+
+Request-Body: siehe Beispiel-Request weiter unten
+````
+
+> **Hinweis:** Render schaltet Web Services auf dem kostenlosen Plan nach ~15 Minuten Inaktivität schlafen. Der erste Request nach einer Schlafphase kann 30–60 Sekunden dauern (Cold Start).
+
+---
 
 ## Endpunkt
 
@@ -43,6 +70,32 @@ Content-Type: application/json
 | `batchBooking` | `boolean` | – | Sammelüberweisung (Standard: `true`) |
 | `creationDateTime` | `string` | – | Erstellungszeit (Standard: jetzt) |
 | `initiatingPartyName` | `string` | – | Auftraggeber-Name (Standard: Debtor-Name) |
+
+## Beispiel-Request (v2009 – simple Variante)
+
+```json
+POST /api/generate-pain001
+{
+  "executionDate": "2025-09-29",
+  "testRunId": "VERI-01",
+  "version": "v2009",
+  "debtor": {
+    "name": "Muster AG",
+    "iban": "CH9300762011623852957"
+  },
+  "transactions": [
+    {
+      "sequenceNumber": 1,
+      "amount": 1.00,
+      "currency": "CHF",
+      "creditorIban": "CH5604835012345678009",
+      "creditor": {
+        "name": "Empfänger GmbH"
+      }
+    }
+  ]
+}
+```
 
 ## Beispiel-Request (v2009 – 1 Transaktion)
 
