@@ -8,7 +8,8 @@
     "build:watch": "tsc --watch",
     "start": "npm run build && node dist/src/server.js",
     "start:watch": "tsc --watch & nodemon dist/src/server.js",
-    "test": "jest"
+    "test": "jest",
+    "test:smoke": "jest --config jest.smoke.config.json"
   },
   "dependencies": {
     "express": "^4.22.1",

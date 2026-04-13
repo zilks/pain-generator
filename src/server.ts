@@ -19,7 +19,10 @@ app.use(express.json());
 
 // ── Swagger UI ────────────────────────────────────────────
 app.use(API_PREFIX, swaggerUi.serve);
-app.get(API_PREFIX, swaggerUi.setup(swaggerSpec, {
+app.get(API_PREFIX, (req: Request, res: Response, next) => {
+  console.log(`[REQ] GET ${API_PREFIX} – ${new Date().toISOString()}`);
+  next();
+}, swaggerUi.setup(swaggerSpec, {
   customSiteTitle: 'PAIN.001 Generator API',
   swaggerOptions: {
     defaultModelsExpandDepth: -1, // Schemas-Sektion standardmässig eingeklappt
