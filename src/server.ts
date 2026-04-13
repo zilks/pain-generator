@@ -28,6 +28,7 @@ app.get(API_PREFIX, swaggerUi.setup(swaggerSpec, {
 
 // ── PAIN.001 Endpunkt ─────────────────────────────────────
 app.post(ROUTE, async (req: Request, res: Response) => {
+  console.log(`[REQ] POST ${ROUTE} – ${new Date().toISOString()}`);
   const result = await handleGeneratePain001(req.body);
 
   res.status(result.status);

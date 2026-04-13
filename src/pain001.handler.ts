@@ -26,6 +26,7 @@ export async function handleGeneratePain001(
   // 1. Validate request
   const validation = validatePain001Request(body);
   if (!validation.valid) {
+    console.warn('[422] Validation failed:', validation.errors);
     return {
       status: 422,
       headers: { 'Content-Type': 'application/json' },
@@ -50,12 +51,8 @@ export async function handleGeneratePain001(
   };
 
   // 3. Generate XML
-  // TODO [v2019]: Implementation incomplete – no validated XSD available yet.
-  //               Once the XSD (pain.001.001.09.ch.03.xsd) is available:
-  //                 1. Place the XSD file under /schema
-  //                 2. Verify pain001v2019.builder.ts against the XSD (see file)
-  //                 3. Remove this block and enable v2019
   if (resolved.version === 'v2019') {
+    console.warn(`[501] v2019 not implemented – testRunId=${resolved.testRunId}`);
     return {
       status: 501,
       headers: { 'Content-Type': 'application/json' },
@@ -72,6 +69,7 @@ export async function handleGeneratePain001(
   try {
     xml = buildV2009(resolved);
   } catch (err) {
+    console.error(`[500] XML generation failed – testRunId=${resolved.testRunId}:`, err);
     return {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
@@ -81,6 +79,7 @@ export async function handleGeneratePain001(
 
   // 4. Return response
   const filename = `pain001_${resolved.testRunId}_${resolved.executionDate}_${resolved.version}.xml`;
+  console.log(`[200] Generated ${filename} – txs=${resolved.nbOfTxs}, ctrlSum=${resolved.ctrlSum}`);
   return {
     status: 200,
     headers: {
