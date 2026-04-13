@@ -8,7 +8,7 @@ import express, { Request, Response } from 'express';
 import { handleGeneratePain001 } from './pain001.handler';
 
 const app = express();
-const PORT = process.env.PORT ? parseInt(process.env.PORT) : 7071;
+const PORT = process.env.PORT ? parseInt(process.env.PORT) : 8080;
 const ROUTE = '/api/generate-pain001';
 
 app.use(express.json());
