@@ -20,8 +20,7 @@ Der Service wird automatisch via GitHub Actions auf [Render](https://render.com)
 ```
 https://pain-generator.onrender.com
 ```
-
-> Den genauen Service-Namen findest du im Render Dashboard unter **Settings → Custom Domains** resp. direkt in der Service-Übersicht.
+#### Beispiel-Aufruf
 
 ````
 POST https://pain-generator.onrender.com/api/generate-pain001
