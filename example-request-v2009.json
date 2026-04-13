@@ -1,0 +1,51 @@
+{
+  "version": "v2009",
+  "testRunId": "VERI-01",
+  "executionDate": "2026-04-20",
+  "debtor": {
+    "name": "Muster AG",
+    "iban": "CH56 0483 5012 3456 7800 9",
+    "bic": "CRESCHZZ80A"
+  },
+  "transactions": [
+    {
+      "sequenceNumber": 1,
+      "amount": 1500.00,
+      "currency": "CHF",
+      "creditor": {
+        "name": "Max Mustermann",
+        "postalAddress": {
+          "streetName": "Bahnhofstrasse",
+          "buildingNumber": "42",
+          "postCode": "8001",
+          "townName": "Zürich",
+          "country": "CH"
+        }
+      },
+      "creditorIban": "CH93 0076 2011 6238 5295 7",
+      "creditorBic": "UBSWCHZH80A",
+      "remittanceInfoUnstructured": "Rechnung 2026-0042 vom 01.04.2026"
+    },
+    {
+      "sequenceNumber": 2,
+      "amount": 750.50,
+      "currency": "CHF",
+      "creditor": {
+        "name": "Erika Muster",
+        "postalAddress": {
+          "streetName": "Hauptgasse",
+          "buildingNumber": "7",
+          "postCode": "3011",
+          "townName": "Bern",
+          "country": "CH"
+        }
+      },
+      "creditorIban": "CH56 0483 5012 3456 7800 9",
+      "creditorBic": "CRESCHZZ80A",
+      "remittanceInfoUnstructured": "Lohnzahlung April 2026"
+    }
+  ],
+  "initiatingPartyName": "Muster AG",
+  "batchBooking": true
+}
+

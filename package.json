@@ -1,0 +1,29 @@
+{
+  "name": "pain001-generator",
+  "version": "1.0.0",
+  "description": "Azure Function – PAIN.001 XML Generator (v2009 / v2019)",
+  "main": "dist/src/functions/generatePain001.js",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "start": "npm run build && func start",
+    "serve": "npm run build && node dist/src/server.js",
+    "serve:watch": "tsc --watch & nodemon dist/src/server.js",
+    "test": "jest",
+    "prestart": "npm run build"
+  },
+  "dependencies": {
+    "@azure/functions": "^4.5.0",
+    "ibantools": "^4.5.1",
+    "xmlbuilder2": "^3.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3",
+    "@jest/globals": "^29.7.0",
+    "@types/jest": "^29.5.12",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.4"
+  }
+}
+
