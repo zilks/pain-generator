@@ -1,6 +1,6 @@
 {
   "name": "pain001-generator",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Express Backend – PAIN.001 XML Generator (v2009 / v2019)",
   "main": "dist/src/server.js",
   "scripts": {
