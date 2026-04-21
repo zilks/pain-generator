@@ -1,0 +1,39 @@
+version: 2
+updates:
+  # npm dependencies
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Zurich"
+    open-pull-requests-limit: 5
+    pull-request-branch-name:
+      separator: "/"
+    allow:
+      - dependency-type: "all"
+    reviewers:
+      - "zilks"
+    labels:
+      - "dependencies"
+      - "automated"
+    commit-message:
+      prefix: "chore(deps):"
+      include: "scope"
+
+  # GitHub Actions (controls the versions of the actions used in the workflow files)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "10:00"
+      timezone: "Europe/Zurich"
+    labels:
+      - "dependencies"
+      - "automated"
+      - "github-actions"
+    commit-message:
+      prefix: "chore(ci):"
+      include: "scope"
