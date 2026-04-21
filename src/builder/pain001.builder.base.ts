@@ -125,13 +125,20 @@ function buildCreditTransfer(
   if (tx.creditor.postalAddress) {
     const pa = tx.creditor.postalAddress;
     const pstlAdr = cdtr.ele('PstlAdr');
-    pstlAdr.ele('StrtNm').txt(pa.streetName);
-    if (pa.buildingNumber) {
-      pstlAdr.ele('BldgNb').txt(pa.buildingNumber);
+    if (pa.adrLine && pa.adrLine.length > 0) {
+      // Unstrukturierte Adresse (ADDR) – v2009: AdrTp + AdrLine(s) + Ctry
+      pstlAdr.ele('AdrTp').txt('ADDR');
+      pa.adrLine.slice(0, 2).forEach(line => pstlAdr.ele('AdrLine').txt(line));
+      pstlAdr.ele('Ctry').txt(pa.country);
+    } else {
+      // Strukturierte Adresse (STRD) – v2009: AdrTp + Felder + Ctry
+      pstlAdr.ele('AdrTp').txt('STRD');
+      if (pa.streetName) pstlAdr.ele('StrtNm').txt(pa.streetName);
+      if (pa.buildingNumber) pstlAdr.ele('BldgNb').txt(pa.buildingNumber);
+      if (pa.postCode) pstlAdr.ele('PstCd').txt(pa.postCode);
+      if (pa.townName) pstlAdr.ele('TwnNm').txt(pa.townName);
+      pstlAdr.ele('Ctry').txt(pa.country);
     }
-    pstlAdr.ele('PstCd').txt(pa.postCode);
-    pstlAdr.ele('TwnNm').txt(pa.townName);
-    pstlAdr.ele('Ctry').txt(pa.country);
   }
 
   // Creditor account

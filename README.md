@@ -28,6 +28,91 @@ Die Request-Parameter sind für beide Versionen identisch. Die Unterschiede betr
 | **Postadresse Kreditor** | Mit `<AdrTp>` erlaubt | Ohne `<AdrTp>` (`PostalAddress24_pain001_ch_3`) |
 | **Standard seit** | 2009 | 2020 (ISO 20022 pain.001.001.09) |
 
+## Kreditor-Adressen (Postal Address)
+
+Die Adresse des Kreditors (`postalAddress`) ist optional. Wenn sie angegeben wird, unterscheiden sich Format und Verarbeitung je nach PAIN.001-Version.
+
+### v2009 – Strukturierte Adresse (`AdrTp=STRD`)
+
+Einzelne Adressfelder werden separat übergeben. Im XML werden `<AdrTp>STRD</AdrTp>` sowie die entsprechenden Unterelemente gerendert.
+
+```json
+"postalAddress": {
+  "streetName": "Hauptstrasse",
+  "buildingNumber": "1",
+  "postCode": "4001",
+  "townName": "Basel",
+  "country": "CH"
+}
+```
+
+**Im XML:**
+```xml
+<PstlAdr>
+  <AdrTp>STRD</AdrTp>
+  <StrtNm>Hauptstrasse</StrtNm>
+  <BldgNb>1</BldgNb>
+  <PstCd>4001</PstCd>
+  <TwnNm>Basel</TwnNm>
+  <Ctry>CH</Ctry>
+</PstlAdr>
+```
+
+### v2009 – Unstrukturierte Adresse (`AdrTp=ADDR`)
+
+Freitext-Adresszeilen (max. 2 `AdrLine`-Einträge) werden als kombinierte Zeilen übergeben. Im XML werden `<AdrTp>ADDR</AdrTp>` sowie je ein `<AdrLine>` gerendert.
+
+```json
+"postalAddress": {
+  "adrLine": ["Hauptstrasse 1", "4001 Basel"],
+  "country": "CH"
+}
+```
+
+**Im XML:**
+```xml
+<PstlAdr>
+  <AdrTp>ADDR</AdrTp>
+  <AdrLine>Hauptstrasse 1</AdrLine>
+  <AdrLine>4001 Basel</AdrLine>
+  <Ctry>CH</Ctry>
+</PstlAdr>
+```
+
+### v2019 – Strukturierte Adresse (`PostalAddress24_pain001_ch_3`)
+
+In v2019 wird ausschliesslich die strukturierte Variante unterstützt. `AdrTp` ist gemäss SIX-Schema (`PostalAddress24_pain001_ch_3`) **nicht** erlaubt – die Felder werden direkt gerendert. `adrLine` wird in v2019 ignoriert.
+
+```json
+"postalAddress": {
+  "streetName": "Hauptstrasse",
+  "buildingNumber": "1",
+  "postCode": "4001",
+  "townName": "Basel",
+  "country": "CH"
+}
+```
+
+**Im XML:**
+```xml
+<PstlAdr>
+  <StrtNm>Hauptstrasse</StrtNm>
+  <BldgNb>1</BldgNb>
+  <PstCd>4001</PstCd>
+  <TwnNm>Basel</TwnNm>
+  <Ctry>CH</Ctry>
+</PstlAdr>
+```
+
+### Übersicht
+
+| Merkmal | v2009 strukturiert | v2009 unstrukturiert | v2019 |
+|---|---|---|---|
+| `AdrTp` | `STRD` | `ADDR` | nicht vorhanden |
+| Adressfelder | `StrtNm`, `BldgNb`, `PstCd`, `TwnNm` | – | `StrtNm`, `BldgNb`, `PstCd`, `TwnNm` |
+| `AdrLine` | – | max. 2 Zeilen | nicht unterstützt |
+| `Ctry` | ✅ | ✅ | ✅ |
+
 ## Deployment (Render)
 
 Der Service wird automatisch via GitHub Actions auf [Render](https://render.com) deployed, sobald ein Push auf den `main`-Branch erfolgt.

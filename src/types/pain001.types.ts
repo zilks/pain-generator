@@ -7,11 +7,16 @@ export type Pain001Version = 'v2009' | 'v2019';
 
 /** Postal address of the creditor */
 export interface PostalAddress {
-  streetName: string;       // StrtNm
+  country: string;          // Ctry (ISO 3166-1 alpha-2) – immer erforderlich
+
+  // Strukturierte Adresse (AdrTp=STRD) – v2009 und v2019
+  streetName?: string;      // StrtNm
   buildingNumber?: string;  // BldgNb
-  postCode: string;         // PstCd
-  townName: string;         // TwnNm
-  country: string;          // Ctry (ISO 3166-1 alpha-2)
+  postCode?: string;        // PstCd
+  townName?: string;        // TwnNm
+
+  // Unstrukturierte Adresse (AdrTp=ADDR) – nur v2009; max. 2 Zeilen
+  adrLine?: string[];       // AdrLine
 }
 
 /** Creditor information */

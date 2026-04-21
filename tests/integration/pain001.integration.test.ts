@@ -82,5 +82,145 @@ describe('handleGeneratePain001', () => {
     expect(res.status).toBe(200);
     expect(res.body).toContain(String(new Date().getFullYear()));
   });
+
+  // ── Swagger-Beispiel: v2009 – strukturierte Adresse (AdrTp=STRD) ──
+  it('v2009 strukturierte Adresse – HTTP 200, AdrTp=STRD und Adressfelder im XML', async () => {
+    const body = {
+      executionDate: '2025-09-29',
+      testRunId: 'VERI-05',
+      version: 'v2009',
+      randomMsgId: false,
+      debtor: { name: 'Muster AG', iban: 'CH9300762011623852957' },
+      transactions: [
+        {
+          sequenceNumber: 1,
+          amount: 100.00,
+          currency: 'CHF',
+          creditorIban: 'CH5604835012345678009',
+          creditor: {
+            name: 'Empfänger GmbH',
+            postalAddress: {
+              streetName: 'Hauptstrasse',
+              buildingNumber: '1',
+              postCode: '4001',
+              townName: 'Basel',
+              country: 'CH',
+            },
+          },
+        },
+      ],
+    };
+    const res = await handleGeneratePain001(body);
+    expect(res.status).toBe(200);
+    expect(res.body).toContain('http://www.six-interbank-clearing.com/de/pain.001.001.03.ch.02.xsd');
+    expect(res.body).toContain('<AdrTp>STRD</AdrTp>');
+    expect(res.body).toContain('<StrtNm>Hauptstrasse</StrtNm>');
+    expect(res.body).toContain('<BldgNb>1</BldgNb>');
+    expect(res.body).toContain('<PstCd>4001</PstCd>');
+    expect(res.body).toContain('<TwnNm>Basel</TwnNm>');
+    expect(res.body).toContain('<Ctry>CH</Ctry>');
+    expect(res.body).not.toContain('<AdrLine>');
+  });
+
+  // ── Swagger-Beispiel: v2009 – unstrukturierte Adresse (AdrTp=ADDR) ──
+  it('v2009 unstrukturierte Adresse – HTTP 200, AdrTp=ADDR und AdrLine im XML', async () => {
+    const body = {
+      executionDate: '2025-09-29',
+      testRunId: 'VERI-06',
+      version: 'v2009',
+      randomMsgId: false,
+      debtor: { name: 'Muster AG', iban: 'CH9300762011623852957' },
+      transactions: [
+        {
+          sequenceNumber: 1,
+          amount: 100.00,
+          currency: 'CHF',
+          creditorIban: 'CH5604835012345678009',
+          creditor: {
+            name: 'Empfänger GmbH',
+            postalAddress: {
+              adrLine: ['Hauptstrasse 1', '4001 Basel'],
+              country: 'CH',
+            },
+          },
+        },
+      ],
+    };
+    const res = await handleGeneratePain001(body);
+    expect(res.status).toBe(200);
+    expect(res.body).toContain('http://www.six-interbank-clearing.com/de/pain.001.001.03.ch.02.xsd');
+    expect(res.body).toContain('<AdrTp>ADDR</AdrTp>');
+    expect(res.body).toContain('<AdrLine>Hauptstrasse 1</AdrLine>');
+    expect(res.body).toContain('<AdrLine>4001 Basel</AdrLine>');
+    expect(res.body).toContain('<Ctry>CH</Ctry>');
+    expect(res.body).not.toContain('<StrtNm>');
+    expect(res.body).not.toContain('<AdrTp>STRD</AdrTp>');
+  });
+
+  // ── Swagger-Beispiel: v2019 – strukturierte Adresse ──
+  it('v2019 strukturierte Adresse – HTTP 200, kein AdrTp, direkte Adressfelder im XML', async () => {
+    const body = {
+      executionDate: '2025-09-29',
+      testRunId: 'VERI-07',
+      version: 'v2019',
+      randomMsgId: false,
+      debtor: { name: 'Muster AG', iban: 'CH9300762011623852957', bic: 'BANKCH22XXX' },
+      transactions: [
+        {
+          sequenceNumber: 1,
+          amount: 100.00,
+          currency: 'CHF',
+          creditorIban: 'CH5604835012345678009',
+          creditorIid: '769',
+          creditor: {
+            name: 'Empfänger GmbH',
+            postalAddress: {
+              streetName: 'Hauptstrasse',
+              buildingNumber: '1',
+              postCode: '4001',
+              townName: 'Basel',
+              country: 'CH',
+            },
+          },
+        },
+      ],
+    };
+    const res = await handleGeneratePain001(body);
+    expect(res.status).toBe(200);
+    expect(res.body).toContain('urn:iso:std:iso:20022:tech:xsd:pain.001.001.09');
+    expect(res.body).not.toContain('<AdrTp>');
+    expect(res.body).toContain('<StrtNm>Hauptstrasse</StrtNm>');
+    expect(res.body).toContain('<BldgNb>1</BldgNb>');
+    expect(res.body).toContain('<PstCd>4001</PstCd>');
+    expect(res.body).toContain('<TwnNm>Basel</TwnNm>');
+    expect(res.body).toContain('<Ctry>CH</Ctry>');
+    expect(res.body).not.toContain('<AdrLine>');
+  });
+
+  // ── Swagger-Beispiel: v2019 – ohne Adresse ──
+  it('v2019 ohne Adresse – HTTP 200, kein PstlAdr-Block im XML', async () => {
+    const body = {
+      executionDate: '2025-09-29',
+      testRunId: 'VERI-08',
+      version: 'v2019',
+      randomMsgId: false,
+      debtor: { name: 'Muster AG', iban: 'CH9300762011623852957', bic: 'BANKCH22XXX' },
+      transactions: [
+        {
+          sequenceNumber: 1,
+          amount: 100.00,
+          currency: 'CHF',
+          creditorIban: 'CH5604835012345678009',
+          creditor: { name: 'Empfänger GmbH' },
+        },
+      ],
+    };
+    const res = await handleGeneratePain001(body);
+    expect(res.status).toBe(200);
+    expect(res.body).toContain('urn:iso:std:iso:20022:tech:xsd:pain.001.001.09');
+    expect(res.body).toContain('<Nm>Empfänger GmbH</Nm>');
+    expect(res.body).not.toContain('<PstlAdr>');
+    expect(res.body).not.toContain('<AdrTp>');
+  });
 });
 

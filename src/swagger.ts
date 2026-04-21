@@ -47,13 +47,16 @@ const options: swaggerJsdoc.Options = {
         PostalAddress: {
           type: 'object',
           properties: {
+            country:        { type: 'string', example: 'CH', description: 'ISO 3166-1 alpha-2 – immer erforderlich' },
+            // Strukturierte Adresse (AdrTp=STRD) – v2009 und v2019
             streetName:     { type: 'string', example: 'Hauptstrasse' },
             buildingNumber: { type: 'string', example: '1' },
             postCode:       { type: 'string', example: '4001' },
             townName:       { type: 'string', example: 'Basel' },
-            country:        { type: 'string', example: 'CH', description: 'ISO 3166-1 alpha-2' },
+            // Unstrukturierte Adresse (AdrTp=ADDR) – nur v2009
+            adrLine:        { type: 'array', items: { type: 'string' }, maxItems: 2, example: ['Hauptstrasse 1', '4001 Basel'], description: 'Freitext-Adresszeilen (max. 2) – nur v2009' },
           },
-          required: ['streetName', 'postCode', 'townName', 'country'],
+          required: ['country'],
         },
         CreditorInfo: {
           type: 'object',
@@ -219,6 +222,123 @@ const options: swaggerJsdoc.Options = {
                         { sequenceNumber: 1, amount: 1.00, currency: 'CHF', creditorIban: 'CH5604835012345678009', creditor: { name: 'Empfänger 1' } },
                         { sequenceNumber: 2, amount: 2.50, currency: 'CHF', creditorIban: 'CH5604835012345678009', creditor: { name: 'Empfänger 2' } },
                         { sequenceNumber: 3, amount: 3.75, currency: 'CHF', creditorIban: 'CH5604835012345678009', creditor: { name: 'Empfänger 3' } },
+                      ],
+                    },
+                  },
+                  'v2009 – strukturierte Adresse (AdrTp=STRD)': {
+                    summary: 'v2009 – strukturierte Kreditor-Adresse (StrtNm, BldgNb, PstCd, TwnNm, Ctry)',
+                    value: {
+                      executionDate: '2025-09-29',
+                      testRunId: 'VERI-05',
+                      version: 'v2009',
+                      randomMsgId: true,
+                      debtor: {
+                        name: 'Muster AG',
+                        iban: 'CH9300762011623852957',
+                      },
+                      transactions: [
+                        {
+                          sequenceNumber: 1,
+                          amount: 100.00,
+                          currency: 'CHF',
+                          creditorIban: 'CH5604835012345678009',
+                          creditor: {
+                            name: 'Empfänger GmbH',
+                            postalAddress: {
+                              streetName: 'Hauptstrasse',
+                              buildingNumber: '1',
+                              postCode: '4001',
+                              townName: 'Basel',
+                              country: 'CH',
+                            },
+                          },
+                        },
+                      ],
+                    },
+                  },
+                  'v2009 – unstrukturierte Adresse (AdrTp=ADDR)': {
+                    summary: 'v2009 – unstrukturierte Kreditor-Adresse (AdrLine, max. 2 Zeilen)',
+                    value: {
+                      executionDate: '2025-09-29',
+                      testRunId: 'VERI-06',
+                      version: 'v2009',
+                      randomMsgId: true,
+                      debtor: {
+                        name: 'Muster AG',
+                        iban: 'CH9300762011623852957',
+                      },
+                      transactions: [
+                        {
+                          sequenceNumber: 1,
+                          amount: 100.00,
+                          currency: 'CHF',
+                          creditorIban: 'CH5604835012345678009',
+                          creditor: {
+                            name: 'Empfänger GmbH',
+                            postalAddress: {
+                              adrLine: ['Hauptstrasse 1', '4001 Basel'],
+                              country: 'CH',
+                            },
+                          },
+                        },
+                      ],
+                    },
+                  },
+                  'v2019 – strukturierte Adresse': {
+                    summary: 'v2019 – strukturierte Kreditor-Adresse (PostalAddress24, kein AdrTp)',
+                    value: {
+                      executionDate: '2025-09-29',
+                      testRunId: 'VERI-07',
+                      version: 'v2019',
+                      randomMsgId: true,
+                      debtor: {
+                        name: 'Muster AG',
+                        iban: 'CH9300762011623852957',
+                        bic: 'BANKCH22XXX',
+                      },
+                      transactions: [
+                        {
+                          sequenceNumber: 1,
+                          amount: 100.00,
+                          currency: 'CHF',
+                          creditorIban: 'CH5604835012345678009',
+                          creditorIid: '769',
+                          creditor: {
+                            name: 'Empfänger GmbH',
+                            postalAddress: {
+                              streetName: 'Hauptstrasse',
+                              buildingNumber: '1',
+                              postCode: '4001',
+                              townName: 'Basel',
+                              country: 'CH',
+                            },
+                          },
+                        },
+                      ],
+                    },
+                  },
+                  'v2019 – ohne Adresse': {
+                    summary: 'v2019 – ohne Kreditor-Adresse (nur Name + IBAN)',
+                    value: {
+                      executionDate: '2025-09-29',
+                      testRunId: 'VERI-08',
+                      version: 'v2019',
+                      randomMsgId: true,
+                      debtor: {
+                        name: 'Muster AG',
+                        iban: 'CH9300762011623852957',
+                        bic: 'BANKCH22XXX',
+                      },
+                      transactions: [
+                        {
+                          sequenceNumber: 1,
+                          amount: 100.00,
+                          currency: 'CHF',
+                          creditorIban: 'CH5604835012345678009',
+                          creditor: {
+                            name: 'Empfänger GmbH',
+                          },
+                        },
                       ],
                     },
                   },

@@ -377,13 +377,56 @@ describe('XML Builder v2009', () => {
     expect(xml).toContain('<EndToEndId>E2E-VERI-01-01-2025-09-29</EndToEndId>');
   });
 
-  it('PostalAddress contains all fields', () => {
+  it('PostalAddress strukturiert (STRD) enthält AdrTp und alle Felder', () => {
     const xml = buildV2009(base);
+    expect(xml).toContain('<AdrTp>STRD</AdrTp>');
     expect(xml).toContain('<StrtNm>Hauptstrasse</StrtNm>');
     expect(xml).toContain('<BldgNb>1</BldgNb>');
     expect(xml).toContain('<PstCd>4001</PstCd>');
     expect(xml).toContain('<TwnNm>Basel</TwnNm>');
     expect(xml).toContain('<Ctry>CH</Ctry>');
+  });
+
+  it('PostalAddress unstrukturiert (ADDR) enthält AdrTp und AdrLine', () => {
+    const req: ResolvedPain001Request = {
+      ...base,
+      transactions: [{
+        ...base.transactions[0],
+        creditor: {
+          name: 'Recipient GmbH',
+          postalAddress: {
+            adrLine: ['Hauptstrasse 1', '4001 Basel'],
+            country: 'CH',
+          },
+        },
+      }],
+    };
+    const xml = buildV2009(req);
+    expect(xml).toContain('<AdrTp>ADDR</AdrTp>');
+    expect(xml).toContain('<AdrLine>Hauptstrasse 1</AdrLine>');
+    expect(xml).toContain('<AdrLine>4001 Basel</AdrLine>');
+    expect(xml).toContain('<Ctry>CH</Ctry>');
+    expect(xml).not.toContain('<StrtNm>');
+  });
+
+  it('PostalAddress unstrukturiert (ADDR) rendert maximal 2 AdrLine-Einträge', () => {
+    const req: ResolvedPain001Request = {
+      ...base,
+      transactions: [{
+        ...base.transactions[0],
+        creditor: {
+          name: 'Recipient GmbH',
+          postalAddress: {
+            adrLine: ['Zeile 1', 'Zeile 2', 'Zeile 3'],
+            country: 'CH',
+          },
+        },
+      }],
+    };
+    const xml = buildV2009(req);
+    expect(xml).toContain('<AdrLine>Zeile 1</AdrLine>');
+    expect(xml).toContain('<AdrLine>Zeile 2</AdrLine>');
+    expect(xml).not.toContain('<AdrLine>Zeile 3</AdrLine>');
   });
 });
 
@@ -546,6 +589,35 @@ describe('XML Builder v2019', () => {
     const xml = buildV2019(req);
     const matches = xml.match(/<CdtTrfTxInf>/g);
     expect(matches).toHaveLength(3);
+  });
+
+  it('PostalAddress strukturiert enthält kein AdrTp (PostalAddress24_pain001_ch_3)', () => {
+    const xml = buildV2019(resolved);
+    expect(xml).toContain('<StrtNm>Bahnhofstrasse</StrtNm>');
+    expect(xml).toContain('<PstCd>8001</PstCd>');
+    expect(xml).toContain('<TwnNm>Zürich</TwnNm>');
+    expect(xml).toContain('<Ctry>CH</Ctry>');
+    expect(xml).not.toContain('<AdrTp>');
+  });
+
+  it('PostalAddress adrLine wird in v2019 ignoriert (kein AdrLine im XML)', () => {
+    const req: ResolvedPain001Request = {
+      ...resolved,
+      transactions: [{
+        ...resolved.transactions[0],
+        creditor: {
+          name: 'Recipient AG',
+          postalAddress: {
+            adrLine: ['Bahnhofstrasse 10', '8001 Zürich'],
+            country: 'CH',
+          },
+        },
+      }],
+    };
+    const xml = buildV2019(req);
+    expect(xml).not.toContain('<AdrLine>');
+    expect(xml).not.toContain('<AdrTp>');
+    expect(xml).toContain('<Ctry>CH</Ctry>');
   });
 });
 

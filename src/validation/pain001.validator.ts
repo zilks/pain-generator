@@ -119,14 +119,18 @@ function validateTransaction(tx: unknown, idx: number): string[] {
     }
     if (c.postalAddress !== undefined) {
       const pa = c.postalAddress as Record<string, unknown>;
-      if (!pa.streetName || typeof pa.streetName !== 'string') {
-        errors.push(`${prefix}.creditor.postalAddress.streetName is required.`);
-      }
-      if (!pa.postCode || typeof pa.postCode !== 'string') {
-        errors.push(`${prefix}.creditor.postalAddress.postCode is required.`);
-      }
-      if (!pa.townName || typeof pa.townName !== 'string') {
-        errors.push(`${prefix}.creditor.postalAddress.townName is required.`);
+      const hasAdrLine = Array.isArray(pa.adrLine) && (pa.adrLine as unknown[]).length > 0;
+      if (!hasAdrLine) {
+        // Strukturierte Adresse: Felder sind Pflicht
+        if (!pa.streetName || typeof pa.streetName !== 'string') {
+          errors.push(`${prefix}.creditor.postalAddress.streetName is required.`);
+        }
+        if (!pa.postCode || typeof pa.postCode !== 'string') {
+          errors.push(`${prefix}.creditor.postalAddress.postCode is required.`);
+        }
+        if (!pa.townName || typeof pa.townName !== 'string') {
+          errors.push(`${prefix}.creditor.postalAddress.townName is required.`);
+        }
       }
       if (!pa.country || typeof pa.country !== 'string' || !COUNTRY_REGEX.test(pa.country as string)) {
         errors.push(`${prefix}.creditor.postalAddress.country must be a 2-character ISO-3166-1 alpha-2 code (e.g. "CH").`);

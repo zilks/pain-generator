@@ -122,18 +122,16 @@ function buildCreditTransferV2019(
   }
 
   // Creditor (PartyIdentification135_pain001_ch_4): Nm required, PstlAdr optional
-  // PstlAdr uses PostalAddress24_pain001_ch_3 – no AdrTp, direct fields only
+  // PstlAdr uses PostalAddress24_pain001_ch_3 – no AdrTp, direct fields only (always structured)
   const cdtr = cdtTrf.ele('Cdtr');
   cdtr.ele('Nm').txt(tx.creditor.name);
   if (tx.creditor.postalAddress) {
     const pa = tx.creditor.postalAddress;
     const pstlAdr = cdtr.ele('PstlAdr');
-    pstlAdr.ele('StrtNm').txt(pa.streetName);
-    if (pa.buildingNumber) {
-      pstlAdr.ele('BldgNb').txt(pa.buildingNumber);
-    }
-    pstlAdr.ele('PstCd').txt(pa.postCode);
-    pstlAdr.ele('TwnNm').txt(pa.townName);
+    if (pa.streetName) pstlAdr.ele('StrtNm').txt(pa.streetName);
+    if (pa.buildingNumber) pstlAdr.ele('BldgNb').txt(pa.buildingNumber);
+    if (pa.postCode) pstlAdr.ele('PstCd').txt(pa.postCode);
+    if (pa.townName) pstlAdr.ele('TwnNm').txt(pa.townName);
     pstlAdr.ele('Ctry').txt(pa.country);
   }
 
