@@ -101,6 +101,7 @@ const options: swaggerJsdoc.Options = {
             initiatingPartyName: { type: 'string',  example: 'Muster AG', description: 'Standard: debtor.name' },
             version:             { type: 'string',  enum: ['v2009', 'v2019'], default: 'v2009' },
             batchBooking:        { type: 'boolean', default: true },
+            randomMsgId:   { type: 'boolean', default: false, description: 'Hängt eine zufällige 6-stellige Nummer an die MsgId an (z.B. -123456)' },
           },
           required: ['executionDate', 'testRunId', 'debtor', 'transactions'],
         },
@@ -132,6 +133,7 @@ const options: swaggerJsdoc.Options = {
                       executionDate: '2025-09-29',
                       testRunId: 'VERI-01',
                       version: 'v2009',
+                      randomMsgId: true,
                       debtor: {
                         name: 'Muster AG',
                         iban: 'CH9300762011623852957',
@@ -155,6 +157,7 @@ const options: swaggerJsdoc.Options = {
                       executionDate: '2025-09-29',
                       testRunId: 'VERI-03',
                       version: 'v2009',
+                      randomMsgId: true,
                       debtor: {
                         name: 'Muster AG',
                         iban: 'CH9300762011623852957',
@@ -172,6 +175,7 @@ const options: swaggerJsdoc.Options = {
                       executionDate: '2025-09-29',
                       testRunId: 'VERI-01',
                       version: 'v2019',
+                      randomMsgId: true,
                       debtor: {
                         name: 'Muster AG',
                         iban: 'CH9300762011623852957',
@@ -205,6 +209,7 @@ const options: swaggerJsdoc.Options = {
                       executionDate: '2025-09-29',
                       testRunId: 'VERI-03',
                       version: 'v2019',
+                      randomMsgId: true,
                       debtor: {
                         name: 'Muster AG',
                         iban: 'CH9300762011623852957',

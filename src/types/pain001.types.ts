@@ -78,6 +78,9 @@ export interface Pain001Request {
 
   /** Batch booking (BtchBookg); default: true */
   batchBooking?: boolean;
+
+  /** If true, a random 6-digit number (e.g. -123456) is appended to the MsgId */
+  randomMsgId?: boolean;
 }
 
 // ============================================================

@@ -5,9 +5,15 @@
 /**
  * Builds the message ID in the format: MSG-{testRunId}-{date}
  * Example: MSG-VERI-01-2025-09-29
+ * If randomSuffix is true, a random 6-digit number is appended: MSG-VERI-01-2025-09-29-123456
  */
-export function buildMsgId(testRunId: string, date: string): string {
-  return `MSG-${testRunId}-${date}`;
+export function buildMsgId(testRunId: string, date: string, randomSuffix?: boolean): string {
+  const base = `MSG-${testRunId}-${date}`;
+  if (randomSuffix) {
+    const rand = String(Math.floor(100000 + Math.random() * 900000));
+    return `${base}-${rand}`;
+  }
+  return base;
 }
 
 /**

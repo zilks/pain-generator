@@ -26,9 +26,9 @@ export function buildPain001Xml(
   req: ResolvedPain001Request,
   schema: SchemaConfig
 ): string {
-  const { executionDate, testRunId, creationDateTime, debtor, transactions, nbOfTxs, ctrlSum, batchBooking } = req;
+  const { executionDate, testRunId, creationDateTime, debtor, transactions, nbOfTxs, ctrlSum, batchBooking, randomMsgId } = req;
 
-  const msgId    = buildMsgId(testRunId, executionDate);
+  const msgId    = buildMsgId(testRunId, executionDate, randomMsgId);
   const pmtInfId = buildPmtInfId(testRunId, executionDate);
 
   const doc = create({ version: '1.0', encoding: 'UTF-8' })

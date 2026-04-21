@@ -13,6 +13,23 @@ describe('idGenerator', () => {
   it('buildMsgId', () => {
     expect(buildMsgId('VERI-01', '2025-09-29')).toBe('MSG-VERI-01-2025-09-29');
   });
+  it('buildMsgId – ohne randomSuffix gibt keine Zufallszahl zurück', () => {
+    expect(buildMsgId('VERI-01', '2025-09-29', false)).toBe('MSG-VERI-01-2025-09-29');
+  });
+  it('buildMsgId – mit randomSuffix hängt 6-stellige Nummer an', () => {
+    const result = buildMsgId('VERI-01', '2025-09-29', true);
+    expect(result).toMatch(/^MSG-VERI-01-2025-09-29-\d{6}$/);
+  });
+  it('buildMsgId – Zufallszahl liegt zwischen 100000 und 999999', () => {
+    const result = buildMsgId('VERI-01', '2025-09-29', true);
+    const suffix = parseInt(result.split('-').pop()!, 10);
+    expect(suffix).toBeGreaterThanOrEqual(100000);
+    expect(suffix).toBeLessThanOrEqual(999999);
+  });
+  it('buildMsgId – verschiedene Aufrufe erzeugen (sehr wahrscheinlich) verschiedene Suffixe', () => {
+    const results = new Set(Array.from({ length: 10 }, () => buildMsgId('VERI-01', '2025-09-29', true)));
+    expect(results.size).toBeGreaterThan(1);
+  });
   it('buildPmtInfId', () => {
     expect(buildPmtInfId('VERI-01', '2025-09-29')).toBe('PAY-VERI-01-2025-09-29');
   });
