@@ -222,5 +222,136 @@ describe('handleGeneratePain001', () => {
     expect(res.body).not.toContain('<PstlAdr>');
     expect(res.body).not.toContain('<AdrTp>');
   });
+
+  // ── Zahlungsarten: SEPA vs. Bankzahlung Ausland ──────────
+  it('SEPA v2019 – HTTP 200, EUR, DE-IBAN, BICFI korrekt im XML', async () => {
+    const body = {
+      executionDate: '2026-05-01',
+      testRunId: 'SEPA-01',
+      version: 'v2019',
+      randomMsgId: false,
+      debtor: { name: 'Muster AG', iban: 'CH5604835012345678009', bic: 'CRESCHZZ80A' },
+      transactions: [{
+        sequenceNumber: 1,
+        amount: 250.00,
+        currency: 'EUR',
+        creditorIban: 'DE89370400440532013000',
+        creditorBic: 'COBADEFFXXX',
+        creditor: {
+          name: 'Müller GmbH',
+          postalAddress: {
+            streetName: 'Berliner Allee',
+            buildingNumber: '12',
+            postCode: '10115',
+            townName: 'Berlin',
+            country: 'DE',
+          },
+        },
+        remittanceInfoUnstructured: 'Rechnung 2026-0099',
+      }],
+    };
+    const res = await handleGeneratePain001(body);
+    expect(res.status).toBe(200);
+    expect(res.body).toContain('urn:iso:std:iso:20022:tech:xsd:pain.001.001.09');
+    expect(res.body).toContain('Ccy="EUR"');
+    expect(res.body).toContain('<IBAN>DE89370400440532013000</IBAN>');
+    expect(res.body).toContain('<BICFI>COBADEFFXXX</BICFI>');
+    expect(res.body).toContain('<Ctry>DE</Ctry>');
+    expect(res.body).toContain('<Ustrd>Rechnung 2026-0099</Ustrd>');
+    // PmtTpInf noch nicht implementiert – kein SvcLvl erwartet
+    expect(res.body).not.toContain('<PmtTpInf>');
+    expect(res.body).not.toContain('<SvcLvl>');
+  });
+
+  it('SEPA v2019 – Content-Disposition enthält korrekten Dateinamen', async () => {
+    const body = {
+      executionDate: '2026-05-01',
+      testRunId: 'SEPA-01',
+      version: 'v2019',
+      debtor: { name: 'Muster AG', iban: 'CH5604835012345678009', bic: 'CRESCHZZ80A' },
+      transactions: [{
+        sequenceNumber: 1, amount: 250.00, currency: 'EUR',
+        creditorIban: 'DE89370400440532013000', creditorBic: 'COBADEFFXXX',
+        creditor: { name: 'Müller GmbH' },
+      }],
+    };
+    const res = await handleGeneratePain001(body);
+    expect(res.headers['Content-Disposition']).toContain('pain001_SEPA-01_2026-05-01_v2019.xml');
+  });
+
+  it('Bankzahlung Ausland v2019 – HTTP 200, USD, US-Adresse, SWIFT-BIC korrekt im XML', async () => {
+    const body = {
+      executionDate: '2026-05-01',
+      testRunId: 'AUSLAND-01',
+      version: 'v2019',
+      randomMsgId: false,
+      debtor: { name: 'Muster AG', iban: 'CH5604835012345678009', bic: 'CRESCHZZ80A' },
+      transactions: [{
+        sequenceNumber: 1,
+        amount: 1000.00,
+        currency: 'USD',
+        creditorIban: 'DE89370400440532013000',
+        creditorBic: 'CHASUS33XXX',
+        creditor: {
+          name: 'Acme Corp',
+          postalAddress: {
+            streetName: '5th Avenue',
+            buildingNumber: '350',
+            postCode: '10001',
+            townName: 'New York',
+            country: 'US',
+          },
+        },
+        remittanceInfoUnstructured: 'Invoice 2026-0099',
+      }],
+    };
+    const res = await handleGeneratePain001(body);
+    expect(res.status).toBe(200);
+    expect(res.body).toContain('urn:iso:std:iso:20022:tech:xsd:pain.001.001.09');
+    expect(res.body).toContain('Ccy="USD"');
+    expect(res.body).toContain('<BICFI>CHASUS33XXX</BICFI>');
+    expect(res.body).toContain('<Ctry>US</Ctry>');
+    expect(res.body).toContain('<TwnNm>New York</TwnNm>');
+    expect(res.body).toContain('<Ustrd>Invoice 2026-0099</Ustrd>');
+    // PmtTpInf noch nicht implementiert
+    expect(res.body).not.toContain('<PmtTpInf>');
+    expect(res.body).not.toContain('<SvcLvl>');
+  });
+
+  it('Bankzahlung Ausland v2019 – NbOfTxs und CtrlSum werden korrekt berechnet', async () => {
+    const body = {
+      executionDate: '2026-05-01',
+      testRunId: 'AUSLAND-02',
+      version: 'v2019',
+      debtor: { name: 'Muster AG', iban: 'CH5604835012345678009', bic: 'CRESCHZZ80A' },
+      transactions: [
+        { sequenceNumber: 1, amount: 500.00, currency: 'USD', creditorIban: 'DE89370400440532013000', creditorBic: 'CHASUS33XXX', creditor: { name: 'Acme Corp' } },
+        { sequenceNumber: 2, amount: 750.00, currency: 'USD', creditorIban: 'DE89370400440532013000', creditorBic: 'CHASUS33XXX', creditor: { name: 'Globex Ltd' } },
+      ],
+    };
+    const res = await handleGeneratePain001(body);
+    expect(res.status).toBe(200);
+    expect(res.body).toContain('<NbOfTxs>2</NbOfTxs>');
+    expect(res.body).toContain('<CtrlSum>1250.00</CtrlSum>');
+  });
+
+  it('SEPA und Ausland gemischt – beide Währungen EUR und USD im selben File', async () => {
+    const body = {
+      executionDate: '2026-05-01',
+      testRunId: 'MIXED-01',
+      version: 'v2019',
+      debtor: { name: 'Muster AG', iban: 'CH5604835012345678009', bic: 'CRESCHZZ80A' },
+      transactions: [
+        { sequenceNumber: 1, amount: 250.00, currency: 'EUR', creditorIban: 'DE89370400440532013000', creditorBic: 'COBADEFFXXX', creditor: { name: 'Müller GmbH' } },
+        { sequenceNumber: 2, amount: 1000.00, currency: 'USD', creditorIban: 'DE89370400440532013000', creditorBic: 'CHASUS33XXX', creditor: { name: 'Acme Corp' } },
+      ],
+    };
+    const res = await handleGeneratePain001(body);
+    expect(res.status).toBe(200);
+    expect(res.body).toContain('Ccy="EUR"');
+    expect(res.body).toContain('Ccy="USD"');
+    expect(res.body).toContain('<NbOfTxs>2</NbOfTxs>');
+    expect(res.body).toContain('<CtrlSum>1250.00</CtrlSum>');
+  });
 });
 

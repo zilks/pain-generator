@@ -621,3 +621,132 @@ describe('XML Builder v2019', () => {
   });
 });
 
+// ─────────────────────────────────────────────────────────────
+// Zahlungsarten: SEPA vs. Bankzahlung Ausland
+// Hinweis: PmtTpInf ist im Generator aktuell NICHT implementiert.
+// Diese Tests dokumentieren das aktuelle Verhalten und dienen als
+// Reminder für die fehlende Implementierung.
+// ─────────────────────────────────────────────────────────────
+describe('XML Builder v2019 – Zahlungsarten (SEPA / Ausland)', () => {
+  const baseResolved: ResolvedPain001Request = {
+    executionDate: '2026-05-01',
+    testRunId: 'SEPA-01',
+    creationDateTime: '2026-05-01T10:00:00',
+    debtor: { name: 'Muster AG', iban: 'CH5604835012345678009', bic: 'CRESCHZZ80A' },
+    version: 'v2019',
+    batchBooking: true,
+    nbOfTxs: 1,
+    ctrlSum: 250.00,
+    transactions: [],
+  };
+
+  const sepaTransaction = {
+    sequenceNumber: 1,
+    amount: 250.00,
+    currency: 'EUR',
+    creditorIban: 'DE89370400440532013000',
+    creditorBic: 'COBADEFFXXX',
+    creditor: {
+      name: 'Müller GmbH',
+      postalAddress: {
+        streetName: 'Berliner Allee',
+        buildingNumber: '12',
+        postCode: '10115',
+        townName: 'Berlin',
+        country: 'DE',
+      },
+    },
+    remittanceInfoUnstructured: 'Rechnung 2026-0099',
+  };
+
+  const auslandTransaction = {
+    sequenceNumber: 1,
+    amount: 1000.00,
+    currency: 'USD',
+    creditorIban: 'DE89370400440532013000',
+    creditorBic: 'CHASUS33XXX',
+    creditor: {
+      name: 'Acme Corp',
+      postalAddress: {
+        streetName: '5th Avenue',
+        buildingNumber: '350',
+        postCode: '10001',
+        townName: 'New York',
+        country: 'US',
+      },
+    },
+    remittanceInfoUnstructured: 'Invoice 2026-0099',
+  };
+
+  // ── SEPA ──────────────────────────────────────────────────
+  it('SEPA: Währung EUR wird korrekt im InstdAmt-Attribut gerendert', () => {
+    const req = { ...baseResolved, transactions: [sepaTransaction] };
+    expect(buildV2019(req)).toContain('Ccy="EUR"');
+  });
+
+  it('SEPA: BICFI des Kreditors wird korrekt gerendert', () => {
+    const req = { ...baseResolved, transactions: [sepaTransaction] };
+    expect(buildV2019(req)).toContain('<BICFI>COBADEFFXXX</BICFI>');
+  });
+
+  it('SEPA: Creditor IBAN (DE) wird ohne Leerzeichen gerendert', () => {
+    const req = { ...baseResolved, transactions: [sepaTransaction] };
+    expect(buildV2019(req)).toContain('<IBAN>DE89370400440532013000</IBAN>');
+  });
+
+  it('SEPA: Adresse mit country=DE wird korrekt gerendert', () => {
+    const req = { ...baseResolved, transactions: [sepaTransaction] };
+    const xml = buildV2019(req);
+    expect(xml).toContain('<Ctry>DE</Ctry>');
+    expect(xml).toContain('<TwnNm>Berlin</TwnNm>');
+  });
+
+  it('SEPA: kein <PmtTpInf>-Element vorhanden (noch nicht implementiert)', () => {
+    const req = { ...baseResolved, transactions: [sepaTransaction] };
+    const xml = buildV2019(req);
+    expect(xml).not.toContain('<PmtTpInf>');
+    expect(xml).not.toContain('<SvcLvl>');
+  });
+
+  // ── Bankzahlung Ausland ───────────────────────────────────
+  it('Ausland: Währung USD wird korrekt im InstdAmt-Attribut gerendert', () => {
+    const req = { ...baseResolved, ctrlSum: 1000.00, transactions: [auslandTransaction] };
+    expect(buildV2019(req)).toContain('Ccy="USD"');
+  });
+
+  it('Ausland: SWIFT-BIC des Kreditors wird als BICFI gerendert', () => {
+    const req = { ...baseResolved, ctrlSum: 1000.00, transactions: [auslandTransaction] };
+    expect(buildV2019(req)).toContain('<BICFI>CHASUS33XXX</BICFI>');
+  });
+
+  it('Ausland: Adresse mit country=US wird korrekt gerendert', () => {
+    const req = { ...baseResolved, ctrlSum: 1000.00, transactions: [auslandTransaction] };
+    const xml = buildV2019(req);
+    expect(xml).toContain('<Ctry>US</Ctry>');
+    expect(xml).toContain('<TwnNm>New York</TwnNm>');
+  });
+
+  it('Ausland: kein <PmtTpInf>-Element vorhanden (noch nicht implementiert)', () => {
+    const req = { ...baseResolved, ctrlSum: 1000.00, transactions: [auslandTransaction] };
+    const xml = buildV2019(req);
+    expect(xml).not.toContain('<PmtTpInf>');
+    expect(xml).not.toContain('<SvcLvl>');
+  });
+
+  // ── Gemischte Währungen ───────────────────────────────────
+  it('SEPA + Ausland gemischt: beide Währungen (EUR und USD) korrekt im XML', () => {
+    const req: ResolvedPain001Request = {
+      ...baseResolved,
+      nbOfTxs: 2,
+      ctrlSum: 1250.00,
+      transactions: [
+        sepaTransaction,
+        { ...auslandTransaction, sequenceNumber: 2 },
+      ],
+    };
+    const xml = buildV2019(req);
+    expect(xml).toContain('Ccy="EUR"');
+    expect(xml).toContain('Ccy="USD"');
+  });
+});
+
