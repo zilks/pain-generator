@@ -113,6 +113,127 @@ In v2019 wird ausschliesslich die strukturierte Variante unterstützt. `AdrTp` i
 | `AdrLine` | – | max. 2 Zeilen | nicht unterstützt |
 | `Ctry` | ✅ | ✅ | ✅ |
 
+## Zahlungsarten: SEPA vs. Bankzahlung Ausland
+
+> ⚠️ **Aktueller Stand:** Der Generator setzt **kein** `<PmtTpInf>`-Element. Die Bank leitet den Zahlungstyp selbst aus IBAN, BICFI und Währung ab. Eine explizite Signalisierung der Zahlungsart über `SvcLvl` ist **noch nicht implementiert**.
+
+### Hintergrund
+
+Im ISO-20022-Standard wird die Zahlungsart über das optionale Element `PmtTpInf` (Payment Type Information) gesteuert. Dieses enthält u.a.:
+
+| Element | Pfad im XML | Bedeutung |
+|---|---|---|
+| `SvcLvl/Cd` | `PmtInf/PmtTpInf/SvcLvl/Cd` | `SEPA` für SEPA Credit Transfer |
+| `LclInstrm` | `PmtInf/PmtTpInf/LclInstrm` | Proprietary-Code für Auslandzahlung |
+| `CtgyPurp/Cd` | `PmtInf/PmtTpInf/CtgyPurp/Cd` | Zweck (z.B. `SALA`, `SUPP`) |
+
+### SEPA-Zahlung (SCT)
+
+**Voraussetzungen:**
+- Creditor-IBAN liegt in einem SEPA-Land
+- Währung `EUR`
+- `creditorBic` ist ein gültiger SEPA-BICFI
+
+**Gewünschtes XML (noch nicht generiert):**
+```xml
+<PmtTpInf>
+  <SvcLvl>
+    <Cd>SEPA</Cd>
+  </SvcLvl>
+</PmtTpInf>
+```
+
+**Beispiel-Request (v2019):**
+```json
+{
+  "version": "v2019",
+  "testRunId": "SEPA-01",
+  "executionDate": "2026-05-01",
+  "debtor": {
+    "name": "Muster AG",
+    "iban": "CH5604835012345678009",
+    "bic": "CRESCHZZ80A"
+  },
+  "transactions": [{
+    "sequenceNumber": 1,
+    "amount": 250.00,
+    "currency": "EUR",
+    "creditor": {
+      "name": "Müller GmbH",
+      "postalAddress": {
+        "streetName": "Berliner Allee",
+        "buildingNumber": "12",
+        "postCode": "10115",
+        "townName": "Berlin",
+        "country": "DE"
+      }
+    },
+    "creditorIban": "DE89370400440532013000",
+    "creditorBic": "COBADEFFXXX",
+    "remittanceInfoUnstructured": "Rechnung 2026-0099"
+  }]
+}
+```
+
+### Bankzahlung Ausland (SWIFT)
+
+**Voraussetzungen:**
+- Creditor-IBAN liegt ausserhalb des SEPA-Raums **oder** Währung ist nicht `EUR`
+- `creditorBic` ist ein SWIFT-BIC
+
+**Gewünschtes XML (noch nicht generiert):**
+```xml
+<PmtTpInf>
+  <SvcLvl>
+    <Prtry>SWIFT</Prtry>
+  </SvcLvl>
+</PmtTpInf>
+```
+
+**Beispiel-Request (v2019):**
+```json
+{
+  "version": "v2019",
+  "testRunId": "AUSLAND-01",
+  "executionDate": "2026-05-01",
+  "debtor": {
+    "name": "Muster AG",
+    "iban": "CH5604835012345678009",
+    "bic": "CRESCHZZ80A"
+  },
+  "transactions": [{
+    "sequenceNumber": 1,
+    "amount": 1000.00,
+    "currency": "USD",
+    "creditor": {
+      "name": "Acme Corp",
+      "postalAddress": {
+        "streetName": "5th Avenue",
+        "buildingNumber": "350",
+        "postCode": "10001",
+        "townName": "New York",
+        "country": "US"
+      }
+    },
+    "creditorIban": "DE89370400440532013000",
+    "creditorBic": "CHASUS33XXX",
+    "remittanceInfoUnstructured": "Invoice 2026-0099"
+  }]
+}
+```
+
+### Vergleich
+
+| Merkmal | SEPA (SCT) | Bankzahlung Ausland |
+|---|---|---|
+| Währung | `EUR` | beliebig (z.B. `USD`, `GBP`, `CHF`) |
+| IBAN-Land | SEPA-Raum | weltweit |
+| `SvcLvl/Cd` | `SEPA` | – |
+| `SvcLvl/Prtry` | – | z.B. `SWIFT` |
+| `PmtTpInf` im Generator | ❌ noch nicht implementiert | ❌ noch nicht implementiert |
+
+---
+
 ## Deployment (Render)
 
 Der Service wird automatisch via GitHub Actions auf [Render](https://render.com) deployed, sobald ein Push auf den `main`-Branch erfolgt.
