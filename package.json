@@ -16,7 +16,7 @@
     "ibantools": "^4.5.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
-    "xmlbuilder2": "^3.1.1"
+    "xmlbuilder2": "^4.0.3"
   },
   "devDependencies": {
     "@jest/globals": "^30.3.0",
