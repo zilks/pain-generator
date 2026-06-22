@@ -342,6 +342,74 @@ const options: swaggerJsdoc.Options = {
                       ],
                     },
                   },
+                  'v2019 – SEPA Zahlung (EUR)': {
+                    summary: 'v2019 – SEPA Credit Transfer nach Deutschland (EUR, BICFI) – PmtTpInf noch nicht implementiert',
+                    value: {
+                      executionDate: '2026-05-01',
+                      testRunId: 'SEPA-01',
+                      version: 'v2019',
+                      randomMsgId: true,
+                      debtor: {
+                        name: 'Muster AG',
+                        iban: 'CH5604835012345678009',
+                        bic: 'CRESCHZZ80A',
+                      },
+                      transactions: [
+                        {
+                          sequenceNumber: 1,
+                          amount: 250.00,
+                          currency: 'EUR',
+                          creditorIban: 'DE89370400440532013000',
+                          creditorBic: 'COBADEFFXXX',
+                          creditor: {
+                            name: 'Müller GmbH',
+                            postalAddress: {
+                              streetName: 'Berliner Allee',
+                              buildingNumber: '12',
+                              postCode: '10115',
+                              townName: 'Berlin',
+                              country: 'DE',
+                            },
+                          },
+                          remittanceInfoUnstructured: 'Rechnung 2026-0099',
+                        },
+                      ],
+                    },
+                  },
+                  'v2019 – Bankzahlung Ausland (USD, SWIFT)': {
+                    summary: 'v2019 – Auslandzahlung in USD via SWIFT (kein SEPA) – PmtTpInf noch nicht implementiert',
+                    value: {
+                      executionDate: '2026-05-01',
+                      testRunId: 'AUSLAND-01',
+                      version: 'v2019',
+                      randomMsgId: true,
+                      debtor: {
+                        name: 'Muster AG',
+                        iban: 'CH5604835012345678009',
+                        bic: 'CRESCHZZ80A',
+                      },
+                      transactions: [
+                        {
+                          sequenceNumber: 1,
+                          amount: 1000.00,
+                          currency: 'USD',
+                          creditorIban: 'DE89370400440532013000',
+                          creditorBic: 'CHASUS33XXX',
+                          creditor: {
+                            name: 'Acme Corp',
+                            postalAddress: {
+                              streetName: '5th Avenue',
+                              buildingNumber: '350',
+                              postCode: '10001',
+                              townName: 'New York',
+                              country: 'US',
+                            },
+                          },
+                          remittanceInfoUnstructured: 'Invoice 2026-0099',
+                        },
+                      ],
+                    },
+                  },
                 },
               },
             },
