@@ -11,8 +11,12 @@ updates:
     open-pull-requests-limit: 5
     pull-request-branch-name:
       separator: "/"
-    allow:
-      - dependency-type: "all"
+    groups:
+      patch:
+        dependency-types:
+          - "patch"
+        update-types:
+          - "patch"
     reviewers:
       - "zilks"
     labels:
