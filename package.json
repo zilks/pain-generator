@@ -14,7 +14,7 @@
   "dependencies": {
     "express": "^5.2.1",
     "ibantools": "^4.5.1",
-    "swagger-jsdoc": "^6.2.8",
+    "swagger-jsdoc": "^6.3.0",
     "swagger-ui-express": "^5.0.1",
     "xmlbuilder2": "^4.0.3"
   },
