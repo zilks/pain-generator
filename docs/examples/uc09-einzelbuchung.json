@@ -1,0 +1,13 @@
+{
+  "version": "v2019",
+  "testRunId": "UC09",
+  "executionDate": "2026-05-01",
+  "creationDateTime": "2026-04-30T08:00:00",
+  "batchBooking": false,
+  "initiatingPartyName": "Treuhand Muster GmbH",
+  "debtor": { "name": "Muster AG", "iban": "CH9300762011623852957", "bic": "UBSWCHZH80A" },
+  "transactions": [
+    { "sequenceNumber": 1, "amount": 5.00, "currency": "CHF", "creditorIban": "CH5604835012345678009", "creditor": { "name": "Empfänger 1" } },
+    { "sequenceNumber": 2, "amount": 6.00, "currency": "CHF", "creditorIban": "CH5604835012345678009", "creditor": { "name": "Empfänger 2" } }
+  ]
+}

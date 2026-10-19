@@ -1,0 +1,16 @@
+{
+  "version": "v2019",
+  "testRunId": "UC11",
+  "executionDate": "2026-05-01",
+  "debtor": { "name": "Muster AG", "iban": "CH9300762011623852957", "bic": "UBSWCHZH80A" },
+  "transactions": [
+    {
+      "sequenceNumber": 1, "amount": 250.00, "currency": "EUR", "creditorIban": "DE89370400440532013000", "creditorBic": "COBADEFFXXX",
+      "creditor": {
+        "name": "Müller GmbH",
+        "postalAddress": { "streetName": "Berliner Allee", "buildingNumber": "12", "postCode": "10115", "townName": "Berlin", "country": "DE" }
+      },
+      "remittanceInfoUnstructured": "Rechnung 2026-0099"
+    }
+  ]
+}

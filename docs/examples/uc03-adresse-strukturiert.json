@@ -1,0 +1,15 @@
+{
+  "version": "v2019",
+  "testRunId": "UC03",
+  "executionDate": "2026-05-01",
+  "debtor": { "name": "Muster AG", "iban": "CH9300762011623852957", "bic": "UBSWCHZH80A" },
+  "transactions": [
+    {
+      "sequenceNumber": 1, "amount": 120.00, "currency": "CHF", "creditorIban": "CH5604835012345678009", "creditorBic": "CRESCHZZ80A",
+      "creditor": {
+        "name": "Empfänger GmbH",
+        "postalAddress": { "streetName": "Hauptstrasse", "buildingNumber": "1", "postCode": "4001", "townName": "Basel", "country": "CH" }
+      }
+    }
+  ]
+}

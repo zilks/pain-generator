@@ -1,0 +1,9 @@
+{
+  "version": "v2019",
+  "testRunId": "UC05",
+  "executionDate": "2026-05-01",
+  "debtor": { "name": "Muster AG", "iban": "CH9300762011623852957", "iid": "762" },
+  "transactions": [
+    { "sequenceNumber": 1, "amount": 50.00, "currency": "CHF", "creditorIban": "CH5604835012345678009", "creditorIid": "4835", "creditor": { "name": "Empfänger GmbH" } }
+  ]
+}

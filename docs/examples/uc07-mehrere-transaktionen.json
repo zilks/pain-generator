@@ -1,0 +1,11 @@
+{
+  "version": "v2009",
+  "testRunId": "UC07",
+  "executionDate": "2026-05-01",
+  "debtor": { "name": "Muster AG", "iban": "CH9300762011623852957", "bic": "UBSWCHZH80A" },
+  "transactions": [
+    { "sequenceNumber": 1, "amount": 10.10, "currency": "CHF", "creditorIban": "CH5604835012345678009", "creditor": { "name": "Empfänger 1" } },
+    { "sequenceNumber": 2, "amount": 20.20, "currency": "CHF", "creditorIban": "CH5604835012345678009", "creditor": { "name": "Empfänger 2" } },
+    { "sequenceNumber": 3, "amount": 30.30, "currency": "CHF", "creditorIban": "CH5604835012345678009", "creditor": { "name": "Empfänger 3" } }
+  ]
+}
