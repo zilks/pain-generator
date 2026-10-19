@@ -48,7 +48,7 @@ const options: swaggerJsdoc.Options = {
           type: 'object',
           properties: {
             country:        { type: 'string', example: 'CH', description: 'ISO 3166-1 alpha-2 – immer erforderlich' },
-            // Strukturierte Adresse (AdrTp=STRD) – v2009 und v2019
+            // Strukturierte Adresse (ohne AdrTp) – v2009 und v2019
             streetName:     { type: 'string', example: 'Hauptstrasse' },
             buildingNumber: { type: 'string', example: '1' },
             postCode:       { type: 'string', example: '4001' },
@@ -225,7 +225,7 @@ const options: swaggerJsdoc.Options = {
                       ],
                     },
                   },
-                  'v2009 – strukturierte Adresse (AdrTp=STRD)': {
+                  'v2009 – strukturierte Adresse': {
                     summary: 'v2009 – strukturierte Kreditor-Adresse (StrtNm, BldgNb, PstCd, TwnNm, Ctry)',
                     value: {
                       executionDate: '2025-09-29',
