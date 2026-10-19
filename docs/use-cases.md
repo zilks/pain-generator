@@ -26,7 +26,8 @@ curl -X POST http://localhost:8080/api/generate-pain001 \
 | UC08 | Eindeutige MsgId bei wiederholten Testläufen | v2009 / v2019 | [uc08-eindeutige-msgid.json](examples/uc08-eindeutige-msgid.json) |
 | UC09 | Einzelbuchung, abweichender Auftraggeber, fixer Zeitstempel | v2009 / v2019 | [uc09-einzelbuchung.json](examples/uc09-einzelbuchung.json) |
 | UC10 | Negativtest: falsche Anzahl / Kontrollsumme | v2009 / v2019 | [uc10-negativtest-kontrollsumme.json](examples/uc10-negativtest-kontrollsumme.json) |
-| UC11 | Fremdwährung / EUR in den SEPA-Raum | v2009 / v2019 | [uc11-eur-sepa-raum.json](examples/uc11-eur-sepa-raum.json) |
+| UC11 | SEPA-Zahlung (EUR in den SEPA-Raum) | v2009 / v2019 | [uc11-eur-sepa-raum.json](examples/uc11-eur-sepa-raum.json) |
+| UC12 | Auslandzahlung (SWIFT, Fremdwährung) | v2009 / v2019 | [uc12-auslandzahlung-swift.json](examples/uc12-auslandzahlung-swift.json) |
 
 ## Varianten-Matrix
 
@@ -43,6 +44,7 @@ Jeder Use Case ist eine Kombination der folgenden, voneinander unabhängigen Dim
 | Buchungsart | Sammelbuchung · Einzelbuchung | `batchBooking` (Standard `true`) |
 | Kopfdaten | automatisch berechnet · explizit überschrieben | `nbOfTxs`, `ctrlSum`, `creationDateTime`, `initiatingPartyName` |
 | MsgId | deterministisch · mit Zufalls-Suffix | `randomMsgId` (Standard `false`) |
+| Zahlungsart (`PmtTpInf`) | automatisch SEPA · explizit SEPA · SWIFT · keine Angabe | `paymentType` |
 
 ## Use Cases im Detail
 
@@ -120,9 +122,18 @@ Banken weisen Dateien mit bereits verarbeiteter `MsgId` oft als Duplikat zurück
 
 `nbOfTxs` und `ctrlSum` überschreiben die automatisch berechneten Werte, ohne dass der Generator sie gegen die Transaktionen abgleicht. So lassen sich bewusst inkonsistente Dateien erzeugen, um die Fehlerbehandlung einer Bank oder eines Systems zu testen.
 
-### UC11 – Fremdwährung / EUR in den SEPA-Raum
+### UC11 / UC12 – Zahlungsart: SEPA und Auslandzahlung
 
-Währung, Kreditor-IBAN und -BIC sind frei wählbar. Gehen alle Transaktionen in EUR an eine SEPA-IBAN, setzt der Generator automatisch `PmtTpInf/SvcLvl/Cd=SEPA`; mit `paymentType` lässt sich die Zahlungsart explizit wählen (`SEPA` oder `SWIFT`). Hintergrund: [README – Zahlungsarten](../README.md#zahlungsarten-sepa-vs-bankzahlung-ausland).
+Die Zahlungsart wird im `PmtInf`-Block über `PmtTpInf/SvcLvl` signalisiert und gilt für alle Transaktionen der Datei. Hintergrund: [README – Zahlungsarten](../README.md#zahlungsarten-sepa-vs-bankzahlung-ausland).
+
+| Fall | `paymentType` | XML |
+|------|---------------|-----|
+| Alle Transaktionen in EUR an eine SEPA-IBAN (UC11) | weglassen | `<PmtTpInf><SvcLvl><Cd>SEPA</Cd></SvcLvl></PmtTpInf>` (automatisch) |
+| Dasselbe, explizit | `"SEPA"` | wie oben; 422, wenn eine Transaktion nicht EUR oder keine SEPA-IBAN ist |
+| Auslandzahlung (UC12) | `"SWIFT"` | `<PmtTpInf><SvcLvl><Prtry>SWIFT</Prtry></SvcLvl></PmtTpInf>` |
+| Auslandzahlung ohne Angabe, CHF-Inlandzahlung oder gemischter Sammelauftrag | weglassen | kein `PmtTpInf`, die Bank leitet die Zahlungsart aus IBAN, BIC und Währung ab |
+
+Ob eine IBAN im SEPA-Raum liegt, wird an den ersten zwei Zeichen (Ländercode) erkannt. `SWIFT` wird nicht gegen Währung oder IBAN geprüft und lässt sich daher auch für Negativtests nutzen.
 
 Hinweis: `CtrlSum` summiert alle Beträge unabhängig von der Währung.
 
@@ -136,6 +147,7 @@ Der Generator prüft vor der XML-Erzeugung:
 | `testRunId` | Pflicht, nicht leer |
 | `creationDateTime` | falls gesetzt: `YYYY-MM-DDTHH:MM:SS` |
 | `version` | falls gesetzt: `v2009` oder `v2019` |
+| `paymentType` | falls gesetzt: `SEPA` oder `SWIFT`; `SEPA` nur, wenn alle Transaktionen EUR an eine SEPA-IBAN sind |
 | `nbOfTxs` / `ctrlSum` | falls gesetzt: > 0 |
 | `debtor.name` / `debtor.iban` | Pflicht; IBAN mit Prüfziffer validiert (Leerzeichen erlaubt, werden entfernt) |
 | `transactions` | mindestens 1 Eintrag |

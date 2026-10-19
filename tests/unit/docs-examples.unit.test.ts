@@ -55,6 +55,9 @@ const EXPECTED: Record<string, { contains: string[]; notContains?: string[] }> =
   'uc11-eur-sepa-raum.json': {
     contains: ['<InstdAmtCcy="EUR">250.00</InstdAmt>', '<BICFI>COBADEFFXXX</BICFI>', '<IBAN>DE89370400440532013000</IBAN>', '<PmtTpInf><SvcLvl><Cd>SEPA</Cd></SvcLvl></PmtTpInf>'],
   },
+  'uc12-auslandzahlung-swift.json': {
+    contains: ['<PmtTpInf><SvcLvl><Prtry>SWIFT</Prtry></SvcLvl></PmtTpInf>', '<InstdAmtCcy="GBP">1000.00</InstdAmt>', '<BICFI>NWBKGB2LXXX</BICFI>'],
+  },
 };
 
 const compact = (xml: string) => xml.replace(/\s+/g, '');
