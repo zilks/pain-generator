@@ -9,6 +9,8 @@ Express-Backend (TypeScript) zur Generierung von PAIN.001-XML-Dateien nach Schwe
 > Dieses Projekt wurde **nicht** von einem Fachexperten (z.B. Zahlungsverkehrsspezialist oder zertifiziertem ISO-20022-Berater) erstellt. Es besteht **keine Gewähr** auf die fachliche oder technische Korrektheit der generierten XML-Dateien sowie der Dokumentation.
 > Die generierten PAIN.001-Dateien sind **ausschliesslich für Testzwecke** gedacht und dürfen **nicht** für produktive Zahlungsaufträge oder den Einsatz im Rahmen von Bankprozessen verwendet werden.
 
+> 📚 Eine Übersicht aller Use Cases und Varianten (Versionen, Adressarten, BIC/IID, Verwendungszweck, Negativtests, Einschränkungen) mit lauffähigen Beispiel-Requests findet sich in [docs/use-cases.md](docs/use-cases.md).
+
 ## Unterstützte Versionen
 
 | Version | Schema | Namespace |
@@ -304,6 +306,7 @@ Content-Type: application/json
 | `batchBooking` | `boolean` | – | Sammelüberweisung (Standard: `true`) |
 | `creationDateTime` | `string` | – | Erstellungszeit (Standard: jetzt) |
 | `initiatingPartyName` | `string` | – | Auftraggeber-Name (Standard: Debtor-Name) |
+| `randomMsgId` | `boolean` | – | Hängt eine 6-stellige Zufallszahl an die MsgId an (Standard: `false`) |
 
 ## Beispiel-Request (v2009 – simple Variante)
 
