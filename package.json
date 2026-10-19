@@ -5,10 +5,13 @@
   "main": "dist/src/server.js",
   "scripts": {
     "build": "tsc",
+    "build:frontend": "npm --prefix frontend ci && npm --prefix frontend run build",
+    "build:all": "npm run build && npm run build:frontend",
     "build:watch": "tsc --watch",
     "start": "npm run build && node dist/src/server.js",
     "start:watch": "tsc --watch & nodemon dist/src/server.js",
     "test": "jest",
+    "test:frontend": "npm --prefix frontend test",
     "test:smoke": "jest --config jest.smoke.config.json"
   },
   "dependencies": {

@@ -31,6 +31,18 @@ jobs:
       - name: Run tests
         run: npm test
 
+      - name: Install frontend dependencies
+        run: npm --prefix frontend ci
+
+      - name: Frontend type check
+        run: npm --prefix frontend run check
+
+      - name: Frontend tests
+        run: npm --prefix frontend test
+
+      - name: Frontend build
+        run: npm --prefix frontend run build
+
   # ── CD: Deploy to Render ───────────────────────────────────
   deploy:
     name: Deploy to Render

@@ -1,0 +1,23 @@
+{
+  "name": "pain001-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Svelte frontend (plain Svelte + Vite, no SvelteKit) for the PAIN.001 generator API",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^6.2.1",
+    "jsdom": "^27.0.0",
+    "svelte": "^5.39.0",
+    "svelte-check": "^4.3.0",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.0",
+    "vitest": "^3.2.4"
+  }
+}

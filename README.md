@@ -1,4 +1,4 @@
-# PAIN.001 Generator – Express Backend
+# PAIN.001 Generator – Express Backend und Svelte-Frontend
 
 [![CI / CD](https://github.com/zilks/pain-generator/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/zilks/pain-generator/actions/workflows/ci-cd.yml)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
@@ -503,6 +503,30 @@ npm test         # Jest-Tests (Unit, Integration, XSD-Validierung)
 ### XSD-Validierung in den Tests
 
 `tests/integration/pain001.xsd.test.ts` erzeugt XML für typische Request-Varianten (Minimal, BIC/IID, mehrere Transaktionen, Remittance-Infos, Adressen, EUR) und validiert es gegen die SIX-Schemas in `src/schemas` (v2009: `pain.001.001.03.ch.02.xsd`, v2019: `pain.001.001.09.ch.03.xsd`). Die Validierung nutzt [`xmllint-wasm`](https://www.npmjs.com/package/xmllint-wasm) (libxml2 als WebAssembly), es ist also kein lokal installiertes `xmllint` nötig. Für eigene Tests steht der Helper `validateAgainstXsd(xml, version)` in `tests/helpers/xsdValidator.ts` bereit.
+
+## Frontend (Svelte)
+
+Unter `/` liefert der Server ein kleines Web-Frontend aus, mit dem man PAIN.001-Dateien ohne manuellen API-Aufruf erstellt. Es ist reines Svelte 5 mit Vite (kein SvelteKit) und liegt in `frontend/`.
+
+- Oben wählt man die Version (`v2009` oder `v2019`), darunter füllt man die Pflichtfelder aus.
+- Optionales schaltet man mit kleinen Chips zu: Adresse (keine, strukturiert, unstrukturiert), Institut (BIC oder IID), Verwendungszweck (unstrukturiert oder strukturiert) sowie Sammelbuchung, zufällige MsgId, Erstellungszeit und abweichender Auftraggeber-Name. Nur zugeschaltete Eigenschaften gehen in den Request.
+- Unstrukturierte Adressen sind in v2019 gesperrt, weil die API `adrLine` dort ignoriert.
+- «XML erstellen» ruft `POST /api/generate-pain001` auf und lädt die Datei herunter. Validierungsfehler (HTTP 422) erscheinen als Liste und markieren die betroffenen Felder.
+- Das Design (Weiss, Rot, Schwarz als Akzent) ist im Designsystem beschrieben; die Tokens stehen in `frontend/src/styles.css`.
+
+```bash
+npm run build:all      # Backend und Frontend bauen (Frontend landet in frontend/dist)
+npm start              # Server auf :8080, Frontend unter http://localhost:8080/
+
+# Entwicklung mit Hot Reload (API muss auf :8080 laufen, Vite proxied /api)
+npm --prefix frontend ci
+npm --prefix frontend run dev
+
+npm run test:frontend  # Vitest (Logik und Komponenten)
+npm --prefix frontend run check   # svelte-check
+```
+
+Ist `frontend/dist` nicht vorhanden, läuft der Server weiterhin als reine API. Der Pfad lässt sich mit `FRONTEND_DIR` überschreiben. Das Dockerfile baut das Frontend in einer eigenen Stage mit.
 
 ## Fehler-Antworten
 
