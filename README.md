@@ -27,16 +27,16 @@ Die Request-Parameter sind für beide Versionen identisch. Die Unterschiede betr
 | **Namespace** | `http://www.six-interbank-clearing.com/de/pain.001.001.03.ch.02.xsd` | `urn:iso:std:iso:20022:tech:xsd:pain.001.001.09` |
 | **Ausführungsdatum** | `<ReqdExctnDt>2025-09-29</ReqdExctnDt>` | `<ReqdExctnDt><Dt>2025-09-29</Dt></ReqdExctnDt>` |
 | **BIC-Element** | `<BIC>BANKCH22XXX</BIC>` | `<BICFI>BANKCH22XXX</BICFI>` |
-| **Postadresse Kreditor** | Mit `<AdrTp>` erlaubt | Ohne `<AdrTp>` (`PostalAddress24_pain001_ch_3`) |
+| **Postadresse Kreditor** | `<AdrTp>ADDR</AdrTp>` nur bei unstrukturierter Adresse | Ohne `<AdrTp>` (`PostalAddress24_pain001_ch_3`) |
 | **Standard seit** | 2009 | 2020 (ISO 20022 pain.001.001.09) |
 
 ## Kreditor-Adressen (Postal Address)
 
 Die Adresse des Kreditors (`postalAddress`) ist optional. Wenn sie angegeben wird, unterscheiden sich Format und Verarbeitung je nach PAIN.001-Version.
 
-### v2009 – Strukturierte Adresse (`AdrTp=STRD`)
+### v2009 – Strukturierte Adresse
 
-Einzelne Adressfelder werden separat übergeben. Im XML werden `<AdrTp>STRD</AdrTp>` sowie die entsprechenden Unterelemente gerendert.
+Einzelne Adressfelder werden separat übergeben. Im XML werden die entsprechenden Unterelemente ohne `<AdrTp>` gerendert, da `STRD` kein gültiger Wert von `AddressType2Code` im SIX-Schema ist.
 
 ```json
 "postalAddress": {
@@ -51,7 +51,6 @@ Einzelne Adressfelder werden separat übergeben. Im XML werden `<AdrTp>STRD</Adr
 **Im XML:**
 ```xml
 <PstlAdr>
-  <AdrTp>STRD</AdrTp>
   <StrtNm>Hauptstrasse</StrtNm>
   <BldgNb>1</BldgNb>
   <PstCd>4001</PstCd>
@@ -62,7 +61,7 @@ Einzelne Adressfelder werden separat übergeben. Im XML werden `<AdrTp>STRD</Adr
 
 ### v2009 – Unstrukturierte Adresse (`AdrTp=ADDR`)
 
-Freitext-Adresszeilen (max. 2 `AdrLine`-Einträge) werden als kombinierte Zeilen übergeben. Im XML werden `<AdrTp>ADDR</AdrTp>` sowie je ein `<AdrLine>` gerendert.
+Freitext-Adresszeilen (max. 2 `AdrLine`-Einträge) werden als kombinierte Zeilen übergeben. Im XML werden `<AdrTp>ADDR</AdrTp>`, `<Ctry>` und je ein `<AdrLine>` gerendert (Reihenfolge gemäss XSD: `Ctry` vor `AdrLine`).
 
 ```json
 "postalAddress": {
@@ -75,9 +74,9 @@ Freitext-Adresszeilen (max. 2 `AdrLine`-Einträge) werden als kombinierte Zeilen
 ```xml
 <PstlAdr>
   <AdrTp>ADDR</AdrTp>
+  <Ctry>CH</Ctry>
   <AdrLine>Hauptstrasse 1</AdrLine>
   <AdrLine>4001 Basel</AdrLine>
-  <Ctry>CH</Ctry>
 </PstlAdr>
 ```
 
@@ -110,7 +109,7 @@ In v2019 wird ausschliesslich die strukturierte Variante unterstützt. `AdrTp` i
 
 | Merkmal | v2009 strukturiert | v2009 unstrukturiert | v2019 |
 |---|---|---|---|
-| `AdrTp` | `STRD` | `ADDR` | nicht vorhanden |
+| `AdrTp` | nicht vorhanden | `ADDR` | nicht vorhanden |
 | Adressfelder | `StrtNm`, `BldgNb`, `PstCd`, `TwnNm` | – | `StrtNm`, `BldgNb`, `PstCd`, `TwnNm` |
 | `AdrLine` | – | max. 2 Zeilen | nicht unterstützt |
 | `Ctry` | ✅ | ✅ | ✅ |
@@ -497,8 +496,12 @@ Content-Disposition: attachment; filename="pain001_VERI-01_2025-09-29_v2009.xml"
 ```bash
 npm install
 npm start        # Baut TypeScript und startet den Express-Server
-npm test         # Jest-Tests
+npm test         # Jest-Tests (Unit, Integration, XSD-Validierung)
 ```
+
+### XSD-Validierung in den Tests
+
+`tests/integration/pain001.xsd.test.ts` erzeugt XML für typische Request-Varianten (Minimal, BIC/IID, mehrere Transaktionen, Remittance-Infos, Adressen, EUR) und validiert es gegen die SIX-Schemas in `src/schemas` (v2009: `pain.001.001.03.ch.02.xsd`, v2019: `pain.001.001.09.ch.03.xsd`). Die Validierung nutzt [`xmllint-wasm`](https://www.npmjs.com/package/xmllint-wasm) (libxml2 als WebAssembly), es ist also kein lokal installiertes `xmllint` nötig. Für eigene Tests steht der Helper `validateAgainstXsd(xml, version)` in `tests/helpers/xsdValidator.ts` bereit.
 
 ## Fehler-Antworten
 

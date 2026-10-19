@@ -93,8 +93,8 @@ describe('handleGeneratePain001', () => {
     expect(res.body).toContain(String(new Date().getFullYear()));
   });
 
-  // ── Swagger-Beispiel: v2009 – strukturierte Adresse (AdrTp=STRD) ──
-  it('v2009 strukturierte Adresse – HTTP 200, AdrTp=STRD und Adressfelder im XML', async () => {
+  // ── Swagger-Beispiel: v2009 – strukturierte Adresse (ohne AdrTp) ──
+  it('v2009 strukturierte Adresse – HTTP 200, kein AdrTp, Adressfelder im XML', async () => {
     const body = {
       executionDate: '2025-09-29',
       testRunId: 'VERI-05',
@@ -123,7 +123,7 @@ describe('handleGeneratePain001', () => {
     const res = await handleGeneratePain001(body);
     expect(res.status).toBe(200);
     expect(res.body).toContain('http://www.six-interbank-clearing.com/de/pain.001.001.03.ch.02.xsd');
-    expect(res.body).toContain('<AdrTp>STRD</AdrTp>');
+    expect(res.body).not.toContain('<AdrTp>');
     expect(res.body).toContain('<StrtNm>Hauptstrasse</StrtNm>');
     expect(res.body).toContain('<BldgNb>1</BldgNb>');
     expect(res.body).toContain('<PstCd>4001</PstCd>');
@@ -164,7 +164,6 @@ describe('handleGeneratePain001', () => {
     expect(res.body).toContain('<AdrLine>4001 Basel</AdrLine>');
     expect(res.body).toContain('<Ctry>CH</Ctry>');
     expect(res.body).not.toContain('<StrtNm>');
-    expect(res.body).not.toContain('<AdrTp>STRD</AdrTp>');
   });
 
   // ── Swagger-Beispiel: v2019 – strukturierte Adresse ──

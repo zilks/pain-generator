@@ -377,9 +377,9 @@ describe('XML Builder v2009', () => {
     expect(xml).toContain('<EndToEndId>E2E-VERI-01-01-2025-09-29</EndToEndId>');
   });
 
-  it('PostalAddress strukturiert (STRD) enthält AdrTp und alle Felder', () => {
+  it('PostalAddress strukturiert enthält alle Felder, aber kein AdrTp', () => {
     const xml = buildV2009(base);
-    expect(xml).toContain('<AdrTp>STRD</AdrTp>');
+    expect(xml).not.toContain('<AdrTp>');
     expect(xml).toContain('<StrtNm>Hauptstrasse</StrtNm>');
     expect(xml).toContain('<BldgNb>1</BldgNb>');
     expect(xml).toContain('<PstCd>4001</PstCd>');
@@ -407,6 +407,21 @@ describe('XML Builder v2009', () => {
     expect(xml).toContain('<AdrLine>4001 Basel</AdrLine>');
     expect(xml).toContain('<Ctry>CH</Ctry>');
     expect(xml).not.toContain('<StrtNm>');
+  });
+
+  it('PostalAddress unstrukturiert (ADDR) rendert Ctry vor AdrLine (XSD-Reihenfolge)', () => {
+    const req: ResolvedPain001Request = {
+      ...base,
+      transactions: [{
+        ...base.transactions[0],
+        creditor: {
+          name: 'Recipient GmbH',
+          postalAddress: { adrLine: ['Hauptstrasse 1', '4001 Basel'], country: 'CH' },
+        },
+      }],
+    };
+    const xml = buildV2009(req);
+    expect(xml.indexOf('<Ctry>CH</Ctry>')).toBeLessThan(xml.indexOf('<AdrLine>Hauptstrasse 1</AdrLine>'));
   });
 
   it('PostalAddress unstrukturiert (ADDR) rendert maximal 2 AdrLine-Einträge', () => {
