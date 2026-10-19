@@ -12,6 +12,7 @@ import {
   buildEndToEndId,
 } from '../utils/idGenerator';
 import { formatAmount } from '../utils/calculator';
+import { PaymentType } from '../types/pain001.types';
 
 export interface SchemaConfig {
   namespace: string;
@@ -54,6 +55,7 @@ export function buildPain001Xml(
   pmtInf.ele('PmtInfId').txt(pmtInfId);
   pmtInf.ele('PmtMtd').txt('TRF');
   pmtInf.ele('BtchBookg').txt(String(batchBooking));
+  appendPmtTpInf(pmtInf, req.paymentType);
   pmtInf.ele('ReqdExctnDt').txt(executionDate);
 
   // Debtor
@@ -85,6 +87,20 @@ export function buildPain001Xml(
   }
 
   return doc.end({ prettyPrint: true });
+}
+
+/**
+ * Appends PmtTpInf/SvcLvl for SEPA (Cd=SEPA) or SWIFT (Prtry=SWIFT).
+ * Shared by v2009 and v2019; the element is at the same position in both schemas.
+ */
+export function appendPmtTpInf(pmtInf: XMLBuilder, paymentType: PaymentType | undefined): void {
+  if (!paymentType) return;
+  const svcLvl = pmtInf.ele('PmtTpInf').ele('SvcLvl');
+  if (paymentType === 'SEPA') {
+    svcLvl.ele('Cd').txt('SEPA');
+  } else {
+    svcLvl.ele('Prtry').txt('SWIFT');
+  }
 }
 
 function buildCreditTransfer(

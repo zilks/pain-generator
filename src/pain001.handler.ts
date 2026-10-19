@@ -7,6 +7,7 @@ import { validatePain001Request } from './validation/pain001.validator';
 import { resolveNbOfTxs, resolveCtrlSum } from './utils/calculator';
 import { buildV2009 } from './builder/pain001v2009.builder';
 import { buildV2019 } from './builder/pain001v2019.builder';
+import { resolvePaymentType } from './utils/paymentType';
 import { Pain001Request, ResolvedPain001Request } from './types/pain001.types';
 
 export interface HandlerRequest {
@@ -43,6 +44,7 @@ export async function handleGeneratePain001(
     ...req,
     version: req.version ?? 'v2009',
     batchBooking: req.batchBooking ?? true,
+    paymentType: resolvePaymentType(req.transactions, req.paymentType),
     nbOfTxs: resolveNbOfTxs(req.transactions, req.nbOfTxs),
     ctrlSum: resolveCtrlSum(req.transactions, req.ctrlSum),
     creationDateTime:

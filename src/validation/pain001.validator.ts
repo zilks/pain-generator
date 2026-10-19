@@ -4,6 +4,7 @@
 
 import { isValidIBAN } from 'ibantools';
 import { Pain001Request, CreditTransfer } from '../types/pain001.types';
+import { isSepaTransaction } from '../utils/paymentType';
 
 export interface ValidationResult {
   valid: boolean;
@@ -45,6 +46,10 @@ export function validatePain001Request(body: unknown): ValidationResult {
     errors.push('version must be "v2009" or "v2019".');
   }
 
+  if (req.paymentType !== undefined && req.paymentType !== 'SEPA' && req.paymentType !== 'SWIFT') {
+    errors.push('paymentType must be "SEPA" or "SWIFT".');
+  }
+
   if (req.nbOfTxs !== undefined && (typeof req.nbOfTxs !== 'number' || req.nbOfTxs < 1)) {
     errors.push('nbOfTxs must be a positive integer.');
   }
@@ -76,6 +81,16 @@ export function validatePain001Request(body: unknown): ValidationResult {
       const txErrors = validateTransaction(tx, idx + 1);
       errors.push(...txErrors);
     });
+
+    if (req.paymentType === 'SEPA') {
+      const allSepa = (req.transactions as Record<string, unknown>[]).every(
+        (t) => typeof t?.currency === 'string' && typeof t.creditorIban === 'string'
+          && isSepaTransaction(t as unknown as CreditTransfer)
+      );
+      if (!allSepa) {
+        errors.push('paymentType "SEPA" requires EUR and a creditorIban in the SEPA area for every transaction.');
+      }
+    }
   }
 
   return { valid: errors.length === 0, errors };

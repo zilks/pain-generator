@@ -21,6 +21,7 @@ import {
   buildEndToEndId,
 } from '../utils/idGenerator';
 import { formatAmount } from '../utils/calculator';
+import { appendPmtTpInf } from './pain001.builder.base';
 
 const NAMESPACE_V2019    = 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09';
 const SCHEMA_LOCATION_V2019 = 'pain.001.001.09.ch.03.xsd';
@@ -59,6 +60,7 @@ export function buildV2019(req: ResolvedPain001Request): string {
   pmtInf.ele('PmtInfId').txt(pmtInfId);
   pmtInf.ele('PmtMtd').txt('TRF');
   pmtInf.ele('BtchBookg').txt(String(batchBooking));
+  appendPmtTpInf(pmtInf, req.paymentType);
 
   // v2019: ReqdExctnDt uses DateAndDateTime2Choice → <Dt>
   pmtInf.ele('ReqdExctnDt').ele('Dt').txt(executionDate);

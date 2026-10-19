@@ -54,6 +54,21 @@ const scenarios: { name: string; body: Record<string, unknown> }[] = [
     },
   },
   {
+    name: 'SEPA payment type (automatic, EUR to DE IBAN)',
+    body: {
+      ...baseBody,
+      transactions: [{ ...baseBody.transactions[0], currency: 'EUR', creditorIban: 'DE89370400440532013000' }],
+    },
+  },
+  {
+    name: 'explicit SWIFT payment type (USD)',
+    body: {
+      ...baseBody,
+      paymentType: 'SWIFT',
+      transactions: [{ ...baseBody.transactions[0], currency: 'USD', creditorIban: 'DE89370400440532013000' }],
+    },
+  },
+  {
     name: 'structured remittance information',
     body: {
       ...baseBody,
