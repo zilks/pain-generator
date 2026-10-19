@@ -4,7 +4,7 @@ Diese Seite beschreibt, welche Arten von PAIN.001-Dateien der Generator erzeugen
 
 > ⚠️ Die generierten Dateien sind ausschliesslich für Testzwecke gedacht (siehe Disclaimer im README).
 
-Zu jedem Use Case gibt es einen lauffähigen Beispiel-Request unter [`docs/examples/`](examples/). Die Beispiele werden in `tests/unit/docs-examples.unit.test.ts` automatisch gegen den Generator geprüft, damit Doku und Code nicht auseinanderlaufen.
+Zu jedem Use Case gibt es einen lauffähigen Beispiel-Request unter [`docs/examples/`](examples/). Die Beispiele werden in `tests/unit/docs-examples.unit.test.ts` automatisch durch den Generator geschickt und gegen die SIX-XSDs validiert, damit Doku und Code nicht auseinanderlaufen.
 
 ```bash
 curl -X POST http://localhost:8080/api/generate-pain001 \
@@ -56,14 +56,13 @@ Unterschiede im XML zwischen den Versionen: siehe [README – Unterschiede v2009
 
 Pflicht sind `streetName`, `postCode`, `townName` und `country`; `buildingNumber` ist optional.
 
-- **v2009:** `<AdrTp>STRD</AdrTp>` gefolgt von den Einzelfeldern
-- **v2019:** Einzelfelder ohne `AdrTp` (Typ `PostalAddress24_pain001_ch_3`)
+In beiden Versionen werden die Einzelfelder ohne `AdrTp` gerendert (`STRD` ist kein gültiger `AddressType2Code`; v2019 nutzt `PostalAddress24_pain001_ch_3`).
 
 ### UC04 – Unstrukturierte Kreditor-Adresse (nur v2009)
 
 `adrLine` mit maximal 2 Zeilen plus `country`. Sobald `adrLine` mindestens einen Eintrag hat, wird die Adresse als unstrukturiert behandelt und die Strassen-/Ortsfelder werden ignoriert. Weitere Zeilen ab der dritten werden abgeschnitten.
 
-Im XML: `<AdrTp>ADDR</AdrTp>`, je ein `<AdrLine>`, dann `<Ctry>`.
+Im XML: `<AdrTp>ADDR</AdrTp>`, `<Ctry>`, dann je ein `<AdrLine>` (Reihenfolge gemäss XSD).
 
 ### UC05 – Institut über IID (Clearing-Nr.)
 
@@ -147,12 +146,12 @@ Der Generator prüft vor der XML-Erzeugung:
 | `postalAddress` strukturiert | `streetName`, `postCode`, `townName` Pflicht |
 | `postalAddress.country` | 2 Grossbuchstaben (ISO 3166-1 alpha-2) |
 
-Nicht geprüft werden u.a. das Format von BIC und IID, die Gültigkeit des Währungscodes, Längenbeschränkungen der SIX-Schemas und die XSD-Konformität des Ergebnisses.
+Nicht geprüft werden u.a. das Format von BIC und IID, die Gültigkeit des Währungscodes und Längenbeschränkungen der SIX-Schemas. Die XSD-Konformität wird nur in den Tests geprüft, nicht zur Laufzeit.
 
 ## Bekannte Einschränkungen
 
-- **Leeres `FinInstnId`:** Ohne `debtor.bic`/`debtor.iid` wird `<DbtrAgt><FinInstnId/></DbtrAgt>` erzeugt (beide Versionen). In v2009 gilt dasselbe für `CdtrAgt` ohne `creditorBic`/`creditorIid`. Für bankseitige Tests sollte daher mindestens beim Debitor BIC oder IID angegeben werden.
-- **`adrLine` in v2019:** Wird eine unstrukturierte Adresse an v2019 übergeben, wird sie ohne Fehlermeldung verworfen; im XML steht nur `<Ctry>`.
+- **Leeres `FinInstnId`:** Ohne `debtor.bic`/`debtor.iid` wird `<DbtrAgt><FinInstnId/></DbtrAgt>` erzeugt (beide Versionen). In v2009 gilt dasselbe für `CdtrAgt` ohne `creditorBic`/`creditorIid`. Das ist XSD-konform, ob Banken eine Datei ohne Institutsangabe akzeptieren, ist aber offen. Für bankseitige Tests sollte daher mindestens beim Debitor BIC oder IID angegeben werden ([#47](https://github.com/zilks/pain-generator/issues/47)).
+- **`adrLine` in v2019:** Wird eine unstrukturierte Adresse an v2019 übergeben, wird sie ohne Fehlermeldung verworfen; im XML steht nur `<Ctry>` ([#48](https://github.com/zilks/pain-generator/issues/48)).
 - **Ein `PmtInf`-Block pro Datei:** Mehrere Debitoren oder Ausführungsdaten in einer Datei sind nicht möglich.
 
 ## Noch nicht unterstützt

@@ -7,6 +7,7 @@ import { describe, it, expect, jest, beforeAll } from '@jest/globals';
 import { readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { handleGeneratePain001 } from '../../src/pain001.handler';
+import { validateAgainstXsd, formatXsdErrors } from '../helpers/xsdValidator';
 
 const EXAMPLES_DIR = join(__dirname, '../../docs/examples');
 
@@ -24,7 +25,7 @@ const EXPECTED: Record<string, { contains: string[]; notContains?: string[] }> =
     notContains: ['<AdrTp>'],
   },
   'uc04-adresse-unstrukturiert-v2009.json': {
-    contains: ['<BIC>CRESCHZZ80A</BIC>', '<PstlAdr><AdrTp>ADDR</AdrTp><AdrLine>Hauptstrasse1</AdrLine><AdrLine>4001Basel</AdrLine><Ctry>CH</Ctry></PstlAdr>'],
+    contains: ['<BIC>CRESCHZZ80A</BIC>', '<PstlAdr><AdrTp>ADDR</AdrTp><Ctry>CH</Ctry><AdrLine>Hauptstrasse1</AdrLine><AdrLine>4001Basel</AdrLine></PstlAdr>'],
   },
   'uc05-iid-clearing.json': {
     contains: [
@@ -75,6 +76,8 @@ describe('docs/examples – Use-Case-Beispiele', () => {
     const res = await handleGeneratePain001(body);
 
     expect(res.status).toBe(200);
+    const xsd = await validateAgainstXsd(res.body, body.version);
+    expect(formatXsdErrors(xsd)).toEqual([]);
     const xml = compact(res.body);
     for (const fragment of EXPECTED[file].contains) {
       expect(xml).toContain(compact(fragment));
