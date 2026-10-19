@@ -2,11 +2,13 @@
 // Express HTTP server – PAIN.001 Generator
 // Endpoint: POST /api/generate-pain001
 // Swagger UI: GET  /api
+// Frontend:   GET  /   (if frontend/dist exists)
 // Start: npm start
 // ============================================================
 
 import express, { Request, Response } from 'express';
 import swaggerUi from 'swagger-ui-express';
+import { registerFrontend } from './frontend';
 import { handleGeneratePain001 } from './pain001.handler';
 import { swaggerSpec } from './swagger';
 
@@ -41,6 +43,9 @@ app.post(ROUTE, async (req: Request, res: Response) => {
   res.send(result.body);
 });
 
+// ── Frontend (Svelte, frontend/dist) ──────────────────────
+const hasFrontend = registerFrontend(app);
+
 app.use((_req: Request, res: Response) => {
   res.status(404).json({ error: `Unknown endpoint. Please use POST ${ROUTE}.` });
 });
@@ -49,4 +54,5 @@ app.listen(PORT, () => {
   console.log(`✅  PAIN.001 server running`);
   console.log(`   POST ${ROUTE}`);
   console.log(`   Swagger UI → http://localhost:${PORT}${API_PREFIX}`);
+  console.log(hasFrontend ? `   Frontend   → http://localhost:${PORT}/` : '   Frontend   → not built (npm run build:frontend)');
 });
