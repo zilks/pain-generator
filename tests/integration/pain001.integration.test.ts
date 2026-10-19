@@ -45,6 +45,16 @@ describe('handleGeneratePain001', () => {
     expect(res.body).toContain('<?xml');
   });
 
+  it('v2019 randomMsgId appends a 6-digit suffix to MsgId', async () => {
+    const res = await handleGeneratePain001({ ...validBody, version: 'v2019', randomMsgId: true });
+    expect(res.body).toMatch(/<MsgId>MSG-VERI-01-2025-09-29-\d{6}<\/MsgId>/);
+  });
+
+  it('v2019 without randomMsgId keeps the plain MsgId', async () => {
+    const res = await handleGeneratePain001({ ...validBody, version: 'v2019', randomMsgId: false });
+    expect(res.body).toContain('<MsgId>MSG-VERI-01-2025-09-29</MsgId>');
+  });
+
   it('v2019 Content-Disposition contains correct filename', async () => {
     const res = await handleGeneratePain001({ ...validBody, version: 'v2019' });
     expect(res.headers['Content-Disposition']).toContain('pain001_VERI-01_2025-09-29_v2019.xml');

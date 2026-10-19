@@ -28,10 +28,10 @@ const SCHEMA_LOCATION_V2019 = 'pain.001.001.09.ch.03.xsd';
 export function buildV2019(req: ResolvedPain001Request): string {
   const {
     executionDate, testRunId, creationDateTime,
-    debtor, transactions, nbOfTxs, ctrlSum, batchBooking,
+    debtor, transactions, nbOfTxs, ctrlSum, batchBooking, randomMsgId,
   } = req;
 
-  const msgId    = buildMsgId(testRunId, executionDate);
+  const msgId    = buildMsgId(testRunId, executionDate, randomMsgId);
   const pmtInfId = buildPmtInfId(testRunId, executionDate);
 
   const doc = create({ version: '1.0', encoding: 'UTF-8' })
