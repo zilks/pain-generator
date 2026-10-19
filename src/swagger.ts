@@ -105,6 +105,7 @@ const options: swaggerJsdoc.Options = {
             version:             { type: 'string',  enum: ['v2009', 'v2019'], default: 'v2009' },
             batchBooking:        { type: 'boolean', default: true },
             randomMsgId:   { type: 'boolean', default: false, description: 'Hängt eine zufällige 6-stellige Nummer an die MsgId an (z.B. -123456)' },
+            paymentType:   { type: 'string', enum: ['SEPA', 'SWIFT'], description: 'Zahlungsart (PmtTpInf). Standard: SEPA, wenn alle Transaktionen in EUR an eine SEPA-IBAN gehen; sonst keine Angabe' },
           },
           required: ['executionDate', 'testRunId', 'debtor', 'transactions'],
         },
@@ -343,7 +344,7 @@ const options: swaggerJsdoc.Options = {
                     },
                   },
                   'v2019 – SEPA Zahlung (EUR)': {
-                    summary: 'v2019 – SEPA Credit Transfer nach Deutschland (EUR, BICFI) – PmtTpInf noch nicht implementiert',
+                    summary: 'v2019 – SEPA Credit Transfer nach Deutschland (EUR, BICFI)',
                     value: {
                       executionDate: '2026-05-01',
                       testRunId: 'SEPA-01',
@@ -377,10 +378,11 @@ const options: swaggerJsdoc.Options = {
                     },
                   },
                   'v2019 – Bankzahlung Ausland (USD, SWIFT)': {
-                    summary: 'v2019 – Auslandzahlung in USD via SWIFT (kein SEPA) – PmtTpInf noch nicht implementiert',
+                    summary: 'v2019 – Auslandzahlung in USD via SWIFT (kein SEPA)',
                     value: {
                       executionDate: '2026-05-01',
                       testRunId: 'AUSLAND-01',
+                      paymentType: 'SWIFT',
                       version: 'v2019',
                       randomMsgId: true,
                       debtor: {

@@ -716,7 +716,7 @@ describe('XML Builder v2019 – Zahlungsarten (SEPA / Ausland)', () => {
     expect(xml).toContain('<TwnNm>Berlin</TwnNm>');
   });
 
-  it('SEPA: kein <PmtTpInf>-Element vorhanden (noch nicht implementiert)', () => {
+  it('SEPA ohne paymentType: kein <PmtTpInf>-Element (Handler setzt es)', () => {
     const req = { ...baseResolved, transactions: [sepaTransaction] };
     const xml = buildV2019(req);
     expect(xml).not.toContain('<PmtTpInf>');
@@ -741,7 +741,7 @@ describe('XML Builder v2019 – Zahlungsarten (SEPA / Ausland)', () => {
     expect(xml).toContain('<TwnNm>New York</TwnNm>');
   });
 
-  it('Ausland: kein <PmtTpInf>-Element vorhanden (noch nicht implementiert)', () => {
+  it('Ausland ohne paymentType: kein <PmtTpInf>-Element', () => {
     const req = { ...baseResolved, ctrlSum: 1000.00, transactions: [auslandTransaction] };
     const xml = buildV2019(req);
     expect(xml).not.toContain('<PmtTpInf>');

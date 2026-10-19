@@ -53,8 +53,7 @@ const EXPECTED: Record<string, { contains: string[]; notContains?: string[] }> =
     contains: ['<NbOfTxs>3</NbOfTxs>', '<CtrlSum>999.99</CtrlSum>'],
   },
   'uc11-eur-sepa-raum.json': {
-    contains: ['<InstdAmtCcy="EUR">250.00</InstdAmt>', '<BICFI>COBADEFFXXX</BICFI>', '<IBAN>DE89370400440532013000</IBAN>'],
-    notContains: ['<PmtTpInf>'],
+    contains: ['<InstdAmtCcy="EUR">250.00</InstdAmt>', '<BICFI>COBADEFFXXX</BICFI>', '<IBAN>DE89370400440532013000</IBAN>', '<PmtTpInf><SvcLvl><Cd>SEPA</Cd></SvcLvl></PmtTpInf>'],
   },
 };
 

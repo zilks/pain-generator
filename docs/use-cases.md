@@ -122,7 +122,7 @@ Banken weisen Dateien mit bereits verarbeiteter `MsgId` oft als Duplikat zurück
 
 ### UC11 – Fremdwährung / EUR in den SEPA-Raum
 
-Währung, Kreditor-IBAN und -BIC sind frei wählbar; die Bank leitet die Zahlungsart daraus ab. Ein `PmtTpInf`-Element (z.B. `SvcLvl/Cd=SEPA`) wird noch **nicht** gesetzt. Hintergrund und das gewünschte Ziel-XML: [README – Zahlungsarten](../README.md#zahlungsarten-sepa-vs-bankzahlung-ausland).
+Währung, Kreditor-IBAN und -BIC sind frei wählbar. Gehen alle Transaktionen in EUR an eine SEPA-IBAN, setzt der Generator automatisch `PmtTpInf/SvcLvl/Cd=SEPA`; mit `paymentType` lässt sich die Zahlungsart explizit wählen (`SEPA` oder `SWIFT`). Hintergrund: [README – Zahlungsarten](../README.md#zahlungsarten-sepa-vs-bankzahlung-ausland).
 
 Hinweis: `CtrlSum` summiert alle Beträge unabhängig von der Währung.
 
@@ -158,7 +158,7 @@ Nicht geprüft werden u.a. das Format von BIC und IID, die Gültigkeit des Währ
 
 | Thema | Status |
 |-------|--------|
-| Zahlungsart über `PmtTpInf` (SEPA, Ausland, `CtgyPurp`) | dokumentiert im README, nicht implementiert |
+| Kategorie-Zweck über `PmtTpInf/CtgyPurp` | nicht implementiert |
 | QR-Rechnung mit QR-Referenz (`Strd/CdtrRefInf`, QRR) / SCOR-Referenz | nicht implementiert |
 | Postadresse des Debitors | nicht implementiert |
 | Kreditor-Konto ohne IBAN (z.B. Kontonummer bei Auslandzahlungen) | nicht implementiert |

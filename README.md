@@ -116,7 +116,7 @@ In v2019 wird ausschliesslich die strukturierte Variante unterstützt. `AdrTp` i
 
 ## Zahlungsarten: SEPA vs. Bankzahlung Ausland
 
-> ⚠️ **Aktueller Stand:** Der Generator setzt **kein** `<PmtTpInf>`-Element. Die Bank leitet den Zahlungstyp selbst aus IBAN, BICFI und Währung ab. Eine explizite Signalisierung der Zahlungsart über `SvcLvl` ist **noch nicht implementiert**.
+> ℹ️ **Stand:** Der Generator setzt `<PmtTpInf>/<SvcLvl>/<Cd>SEPA</Cd>` automatisch, wenn alle Transaktionen in EUR an eine IBAN im SEPA-Raum gehen. Für Auslandzahlungen wird `<SvcLvl>/<Prtry>SWIFT</Prtry>` nur gesetzt, wenn `paymentType: "SWIFT"` angegeben wird. Bei gemischten Sammelüberweisungen wird kein `PmtTpInf` erzeugt; die Bank leitet die Zahlungsart dann aus IBAN, BICFI und Währung ab.
 
 ### Hintergrund
 
@@ -135,7 +135,7 @@ Im ISO-20022-Standard wird die Zahlungsart über das optionale Element `PmtTpInf
 - Währung `EUR`
 - `creditorBic` ist ein gültiger SEPA-BICFI
 
-**Gewünschtes XML (noch nicht generiert):**
+**Generiertes XML (automatisch bei EUR und SEPA-IBAN):**
 ```xml
 <PmtTpInf>
   <SvcLvl>
@@ -182,7 +182,7 @@ Im ISO-20022-Standard wird die Zahlungsart über das optionale Element `PmtTpInf
 - Creditor-IBAN liegt ausserhalb des SEPA-Raums **oder** Währung ist nicht `EUR`
 - `creditorBic` ist ein SWIFT-BIC
 
-**Gewünschtes XML (noch nicht generiert):**
+**Generiertes XML (nur mit `"paymentType": "SWIFT"`):**
 ```xml
 <PmtTpInf>
   <SvcLvl>
@@ -231,7 +231,7 @@ Im ISO-20022-Standard wird die Zahlungsart über das optionale Element `PmtTpInf
 | IBAN-Land | SEPA-Raum | weltweit |
 | `SvcLvl/Cd` | `SEPA` | – |
 | `SvcLvl/Prtry` | – | z.B. `SWIFT` |
-| `PmtTpInf` im Generator | ❌ noch nicht implementiert | ❌ noch nicht implementiert |
+| `PmtTpInf` im Generator | ✅ automatisch (alle Transaktionen EUR an SEPA-IBAN) | ✅ mit `"paymentType": "SWIFT"` |
 
 ---
 
@@ -306,6 +306,7 @@ Content-Type: application/json
 | `creationDateTime` | `string` | – | Erstellungszeit (Standard: jetzt) |
 | `initiatingPartyName` | `string` | – | Auftraggeber-Name (Standard: Debtor-Name) |
 | `randomMsgId` | `boolean` | – | Hängt eine 6-stellige Zufallszahl an die MsgId an (Standard: `false`) |
+| `paymentType` | `"SEPA"` \| `"SWIFT"` | – | Zahlungsart (`PmtTpInf`). Standard: `SEPA`, wenn alle Transaktionen in EUR an eine SEPA-IBAN gehen, sonst keine Angabe. `SEPA` ist nur gültig, wenn alle Transaktionen diese Bedingung erfüllen. |
 
 ## Beispiel-Request (v2009 – simple Variante)
 

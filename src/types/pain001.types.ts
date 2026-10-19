@@ -5,6 +5,9 @@
 /** Supported PAIN.001 versions */
 export type Pain001Version = 'v2009' | 'v2019';
 
+/** Payment type signalled via PmtInf/PmtTpInf/SvcLvl (SEPA: Cd=SEPA, SWIFT: Prtry=SWIFT) */
+export type PaymentType = 'SEPA' | 'SWIFT';
+
 /** Postal address of the creditor */
 export interface PostalAddress {
   country: string;          // Ctry (ISO 3166-1 alpha-2) – immer erforderlich
@@ -86,6 +89,12 @@ export interface Pain001Request {
 
   /** If true, a random 6-digit number (e.g. -123456) is appended to the MsgId */
   randomMsgId?: boolean;
+
+  /**
+   * Payment type for PmtInf/PmtTpInf. If omitted, SEPA is set automatically when
+   * all transactions are EUR to a SEPA-area IBAN; otherwise no PmtTpInf is generated.
+   */
+  paymentType?: PaymentType;
 }
 
 // ============================================================

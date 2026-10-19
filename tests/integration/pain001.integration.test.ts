@@ -267,9 +267,10 @@ describe('handleGeneratePain001', () => {
     expect(res.body).toContain('<BICFI>COBADEFFXXX</BICFI>');
     expect(res.body).toContain('<Ctry>DE</Ctry>');
     expect(res.body).toContain('<Ustrd>Rechnung 2026-0099</Ustrd>');
-    // PmtTpInf noch nicht implementiert – kein SvcLvl erwartet
-    expect(res.body).not.toContain('<PmtTpInf>');
-    expect(res.body).not.toContain('<SvcLvl>');
+    // EUR to a SEPA-area IBAN → SEPA is set automatically
+    expect(res.body).toContain('<PmtTpInf>');
+    expect(res.body).toContain('<SvcLvl>');
+    expect(res.body).toContain('<Cd>SEPA</Cd>');
   });
 
   it('SEPA v2019 – Content-Disposition enthält korrekten Dateinamen', async () => {
@@ -322,7 +323,7 @@ describe('handleGeneratePain001', () => {
     expect(res.body).toContain('<Ctry>US</Ctry>');
     expect(res.body).toContain('<TwnNm>New York</TwnNm>');
     expect(res.body).toContain('<Ustrd>Invoice 2026-0099</Ustrd>');
-    // PmtTpInf noch nicht implementiert
+    // Auslandzahlung ohne paymentType: kein automatisches PmtTpInf
     expect(res.body).not.toContain('<PmtTpInf>');
     expect(res.body).not.toContain('<SvcLvl>');
   });
@@ -364,3 +365,80 @@ describe('handleGeneratePain001', () => {
   });
 });
 
+// ─────────────────────────────────────────────────────────────
+// PmtTpInf – SEPA (automatic) and SWIFT (explicit)
+// ─────────────────────────────────────────────────────────────
+describe('PmtTpInf (paymentType)', () => {
+  const eurTx = {
+    sequenceNumber: 1, amount: 10.00, currency: 'EUR',
+    creditorIban: 'DE89370400440532013000', creditor: { name: 'Müller GmbH' },
+  };
+  const usdTx = {
+    sequenceNumber: 1, amount: 10.00, currency: 'USD',
+    creditorIban: 'DE89370400440532013000', creditor: { name: 'Acme Corp' },
+  };
+  const chfTx = {
+    sequenceNumber: 1, amount: 10.00, currency: 'CHF',
+    creditorIban: 'CH9300762011623852957', creditor: { name: 'Recipient GmbH' },
+  };
+
+  it.each(['v2009', 'v2019'] as const)('%s: explicit SWIFT renders SvcLvl/Prtry', async (version) => {
+    const res = await handleGeneratePain001({
+      executionDate: '2025-09-29', testRunId: 'SWIFT-01', version,
+      paymentType: 'SWIFT', debtor: { name: 'Test AG', iban: 'CH9300762011623852957' },
+      transactions: [usdTx],
+    });
+    expect(res.status).toBe(200);
+    expect(res.body).toContain('<PmtTpInf>');
+    expect(res.body).toContain('<Prtry>SWIFT</Prtry>');
+    expect(res.body).not.toContain('<Cd>SEPA</Cd>');
+  });
+
+  it('PmtTpInf sits between BtchBookg and ReqdExctnDt', async () => {
+    const res = await handleGeneratePain001({
+      executionDate: '2025-09-29', testRunId: 'SEPA-02', version: 'v2009',
+      debtor: { name: 'Test AG', iban: 'CH9300762011623852957' }, transactions: [eurTx],
+    });
+    const order = ['<BtchBookg>', '<PmtTpInf>', '<ReqdExctnDt>'].map((tag) => res.body.indexOf(tag));
+    expect(order.every((i) => i >= 0)).toBe(true);
+    expect(order[0]).toBeLessThan(order[1]);
+    expect(order[1]).toBeLessThan(order[2]);
+  });
+
+  it('mixed batch (EUR and CHF) gets no automatic PmtTpInf', async () => {
+    const res = await handleGeneratePain001({
+      executionDate: '2025-09-29', testRunId: 'MIX-01', version: 'v2019',
+      debtor: { name: 'Test AG', iban: 'CH9300762011623852957' },
+      transactions: [eurTx, { ...chfTx, sequenceNumber: 2 }],
+    });
+    expect(res.status).toBe(200);
+    expect(res.body).not.toContain('<PmtTpInf>');
+  });
+
+  it('CHF payment to a Swiss IBAN gets no automatic SWIFT', async () => {
+    const res = await handleGeneratePain001({
+      executionDate: '2025-09-29', testRunId: 'CHF-01', version: 'v2009',
+      debtor: { name: 'Test AG', iban: 'CH9300762011623852957' }, transactions: [chfTx],
+    });
+    expect(res.body).not.toContain('<PmtTpInf>');
+  });
+
+  it('explicit SEPA with a USD transaction returns HTTP 422', async () => {
+    const res = await handleGeneratePain001({
+      executionDate: '2025-09-29', testRunId: 'SEPA-03', version: 'v2019',
+      paymentType: 'SEPA', debtor: { name: 'Test AG', iban: 'CH9300762011623852957' },
+      transactions: [usdTx],
+    });
+    expect(res.status).toBe(422);
+    expect(JSON.parse(res.body).details.join(' ')).toContain('paymentType "SEPA" requires EUR');
+  });
+
+  it('unknown paymentType returns HTTP 422', async () => {
+    const res = await handleGeneratePain001({
+      executionDate: '2025-09-29', testRunId: 'BAD-01', version: 'v2009',
+      paymentType: 'XYZ', debtor: { name: 'Test AG', iban: 'CH9300762011623852957' },
+      transactions: [eurTx],
+    });
+    expect(res.status).toBe(422);
+  });
+});
