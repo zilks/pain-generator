@@ -105,3 +105,10 @@ body { background: var(--surface); color: var(--ink); font-family: var(--font-sa
 .pg-alert--success { border-color: var(--success); }
 .pg-alert--success .pg-alert__glyph { background: var(--success); color: var(--surface); }
 .pg-alert--success .pg-alert__title { color: var(--success); }
+
+/* Logo: Symbol + Wortmarke «PAIN / GENERATOR» */
+.pg-logo { display: inline-flex; align-items: center; gap: var(--space-3); color: inherit; }
+.pg-logo svg { flex: none; }
+.pg-logo__word { display: flex; flex-direction: column; gap: 3px; line-height: 1; }
+.pg-logo__word b { font-size: 18px; font-weight: 800; letter-spacing: -.01em; }
+.pg-logo__word small { font-size: 8px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; }

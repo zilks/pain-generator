@@ -20,6 +20,14 @@ afterEach(() => {
 });
 
 describe('App', () => {
+  it('shows the logo in the header', () => {
+    render();
+    const logo = document.querySelector('.top .pg-logo')!;
+    expect(logo.getAttribute('role')).toBe('img');
+    expect(logo.getAttribute('aria-label')).toBe('PAIN Generator');
+    expect(logo.querySelectorAll('svg rect')).toHaveLength(5);
+  });
+
   it('starts with v2009 and the required fields only', () => {
     render();
     expect(document.querySelector('.pg-seg [aria-pressed=true]')!.textContent).toContain('v2009');
