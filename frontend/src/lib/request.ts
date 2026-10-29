@@ -30,7 +30,10 @@ function transaction(t: TransactionForm, index: number): TransactionRequest {
   if (t.agent === 'bic') tx.creditorBic = t.bic;
   if (t.agent === 'iid') tx.creditorIid = t.iid;
   if (t.remittance === 'unstructured') tx.remittanceInfoUnstructured = t.remittanceText;
-  if (t.remittance === 'structured') tx.remittanceInfoStructured = t.remittanceText;
+  if (t.remittance === 'structured') {
+    if (t.remittanceText) tx.remittanceInfoStructured = t.remittanceText;
+    if (t.reference.trim()) tx.creditorReference = t.reference.trim();
+  }
   return tx;
 }
 

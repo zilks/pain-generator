@@ -8,6 +8,9 @@ export type Pain001Version = 'v2009' | 'v2019';
 /** Payment type signalled via PmtInf/PmtTpInf/SvcLvl (SEPA: Cd=SEPA, SWIFT: Prtry=SWIFT) */
 export type PaymentType = 'SEPA' | 'SWIFT';
 
+/** Creditor reference type in RmtInf/Strd/CdtrRefInf/Tp (QRR: QR reference, SCOR: ISO 11649) */
+export type CreditorReferenceType = 'QRR' | 'SCOR';
+
 /** Postal address of the creditor */
 export interface PostalAddress {
   country: string;          // Ctry (ISO 3166-1 alpha-2) – immer erforderlich
@@ -53,6 +56,13 @@ export interface CreditTransfer {
   remittanceInfoUnstructured?: string;
   /** Structured remittance information (RmtInf/Strd/AddtlRmtInf) */
   remittanceInfoStructured?: string;
+  /**
+   * Creditor reference (RmtInf/Strd/CdtrRefInf/Ref). Strd always contains a reference;
+   * if omitted, one is generated from testRunId and sequenceNumber.
+   */
+  creditorReference?: string;
+  /** Reference type; default: QRR for a QR-IBAN, otherwise SCOR */
+  creditorReferenceType?: CreditorReferenceType;
 }
 
 /** Main request body of the Azure Function */

@@ -5,7 +5,7 @@ export function emptyTransaction(): TransactionForm {
     creditor: '', iban: '', amount: '', currency: 'CHF',
     address: 'none', street: '', buildingNumber: '', postCode: '', town: '', country: 'CH', line1: '', line2: '',
     agent: 'none', bic: '', iid: '',
-    remittance: 'none', remittanceText: '',
+    remittance: 'none', remittanceText: '', reference: '',
   };
 }
 

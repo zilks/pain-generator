@@ -10,6 +10,7 @@ const TX_FIELDS: Record<string, string> = {
   'creditor.postalAddress.postCode': 'postCode',
   'creditor.postalAddress.townName': 'town',
   'creditor.postalAddress.country': 'country',
+  creditorReference: 'reference',
 };
 
 const TOP_FIELDS: Record<string, string> = {

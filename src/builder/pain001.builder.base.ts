@@ -13,6 +13,7 @@ import {
 } from '../utils/idGenerator';
 import { formatAmount } from '../utils/calculator';
 import { PaymentType } from '../types/pain001.types';
+import { resolveCreditorReference } from '../utils/creditorReference';
 
 export interface SchemaConfig {
   namespace: string;
@@ -164,16 +165,34 @@ function buildCreditTransfer(
     .txt(tx.creditorIban.replace(/\s/g, ''));
 
   // Remittance information
-  if (tx.remittanceInfoUnstructured || tx.remittanceInfoStructured) {
-    const rmtInf = cdtTrf.ele('RmtInf');
-    if (tx.remittanceInfoUnstructured) {
-      rmtInf.ele('Ustrd').txt(tx.remittanceInfoUnstructured);
+  appendRmtInf(cdtTrf, tx, testRunId);
+}
+
+/**
+ * Appends RmtInf with Ustrd and/or Strd. Shared by v2009 and v2019 (same structure).
+ * Strd always carries the mandatory CdtrRefInf (Tp + Ref) before AddtlRmtInf.
+ */
+export function appendRmtInf(cdtTrf: XMLBuilder, tx: CreditTransfer, testRunId: string): void {
+  const hasStrd = Boolean(tx.remittanceInfoStructured || tx.creditorReference || tx.creditorReferenceType);
+  if (!tx.remittanceInfoUnstructured && !hasStrd) return;
+
+  const rmtInf = cdtTrf.ele('RmtInf');
+  if (tx.remittanceInfoUnstructured) {
+    rmtInf.ele('Ustrd').txt(tx.remittanceInfoUnstructured);
+  }
+  if (hasStrd) {
+    const strd = rmtInf.ele('Strd');
+    const { type, ref } = resolveCreditorReference(tx, testRunId);
+    const cdtrRefInf = strd.ele('CdtrRefInf');
+    const cdOrPrtry = cdtrRefInf.ele('Tp').ele('CdOrPrtry');
+    if (type === 'QRR') {
+      cdOrPrtry.ele('Prtry').txt('QRR');
+    } else {
+      cdOrPrtry.ele('Cd').txt('SCOR');
     }
+    cdtrRefInf.ele('Ref').txt(ref);
     if (tx.remittanceInfoStructured) {
-      rmtInf
-        .ele('Strd')
-        .ele('AddtlRmtInf')
-        .txt(tx.remittanceInfoStructured);
+      strd.ele('AddtlRmtInf').txt(tx.remittanceInfoStructured);
     }
   }
 }

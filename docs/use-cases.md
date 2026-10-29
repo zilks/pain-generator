@@ -39,7 +39,7 @@ Jeder Use Case ist eine Kombination der folgenden, voneinander unabhängigen Dim
 | Kreditor-Adresse | keine · strukturiert · unstrukturiert (nur v2009) | `creditor.postalAddress` |
 | Debitor-Institut | keine Angabe · BIC · IID | `debtor.bic` / `debtor.iid` |
 | Kreditor-Institut | keine Angabe · BIC · IID | `creditorBic` / `creditorIid` |
-| Verwendungszweck | keiner · `Ustrd` · `Strd/AddtlRmtInf` · beide | `remittanceInfoUnstructured` / `remittanceInfoStructured` |
+| Verwendungszweck | keiner · `Ustrd` · `Strd` (`CdtrRefInf` + `AddtlRmtInf`) · beide | `remittanceInfoUnstructured` / `remittanceInfoStructured` / `creditorReference` |
 | Anzahl Transaktionen | 1 bis n, alle in einem `PmtInf`-Block | `transactions[]` |
 | Buchungsart | Sammelbuchung · Einzelbuchung | `batchBooking` (Standard `true`) |
 | Kopfdaten | automatisch berechnet · explizit überschrieben | `nbOfTxs`, `ctrlSum`, `creationDateTime`, `initiatingPartyName` |
@@ -87,9 +87,16 @@ Sind BIC **und** IID angegeben, gewinnt der BIC; die IID wird dann nicht ausgege
 |--------------|-----|-------------------|
 | `remittanceInfoUnstructured` | `RmtInf/Ustrd` | Freitext, z.B. Rechnungsnummer |
 | `remittanceInfoStructured` | `RmtInf/Strd/AddtlRmtInf` | Zusatzinformation im strukturierten Block |
+| `creditorReference` | `RmtInf/Strd/CdtrRefInf/Ref` | QR-Referenz oder ISO-11649-Referenz (RF…) |
+| `creditorReferenceType` | `RmtInf/Strd/CdtrRefInf/Tp` | `QRR` (`Prtry`) oder `SCOR` (`Cd`) |
 | beide | `Ustrd` und `Strd` im selben `RmtInf` | Kombinationstests |
 
-Eine strukturierte Referenz (`Strd/CdtrRefInf`, z.B. QR- oder SCOR-Referenz) wird noch **nicht** unterstützt, siehe [Nicht unterstützt](#noch-nicht-unterstützt).
+Gemäss Swiss Payment Standards ist `CdtrRefInf` mit Typ und Referenz Pflicht, sobald `Strd` verwendet wird. Der Generator erzeugt `Strd` deshalb immer mit `CdtrRefInf`, sobald `remittanceInfoStructured`, `creditorReference` oder `creditorReferenceType` gesetzt ist:
+
+- **Typ:** Ohne `creditorReferenceType` gilt `QRR` für eine QR-IBAN (IID 30000–31999) und sonst `SCOR`.
+- **Referenz:** Ohne `creditorReference` wird eine gültige Referenz aus `testRunId` und `sequenceNumber` abgeleitet, z.B. `RF92UC0602` (SCOR) oder eine 27-stellige QR-Referenz mit Prüfziffer (Modulo 10 rekursiv). Leerzeichen in einer übergebenen Referenz werden entfernt.
+
+Die dritte Transaktion des Beispiels zahlt auf eine QR-IBAN mit expliziter QR-Referenz.
 
 ### UC07 – Mehrere Transaktionen
 
@@ -157,6 +164,8 @@ Der Generator prüft vor der XML-Erzeugung:
 | `creditor.name` | Pflicht |
 | `postalAddress` strukturiert | `streetName`, `postCode`, `townName` Pflicht |
 | `postalAddress.country` | 2 Grossbuchstaben (ISO 3166-1 alpha-2) |
+| `creditorReferenceType` | falls gesetzt: `QRR` (nur mit QR-IBAN) oder `SCOR` (nicht mit QR-IBAN) |
+| `creditorReference` | falls gesetzt: QRR 27 Ziffern mit gültiger Prüfziffer, SCOR `RF` + gültige Prüfziffer + max. 21 Zeichen |
 
 Nicht geprüft werden u.a. das Format von BIC und IID, die Gültigkeit des Währungscodes und Längenbeschränkungen der SIX-Schemas. Die XSD-Konformität wird nur in den Tests geprüft, nicht zur Laufzeit.
 
@@ -171,7 +180,6 @@ Nicht geprüft werden u.a. das Format von BIC und IID, die Gültigkeit des Währ
 | Thema | Status |
 |-------|--------|
 | Kategorie-Zweck über `PmtTpInf/CtgyPurp` | nicht implementiert |
-| QR-Rechnung mit QR-Referenz (`Strd/CdtrRefInf`, QRR) / SCOR-Referenz | nicht implementiert |
 | Postadresse des Debitors | nicht implementiert |
 | Kreditor-Konto ohne IBAN (z.B. Kontonummer bei Auslandzahlungen) | nicht implementiert |
 | Ultimate Debtor / Ultimate Creditor | nicht implementiert |

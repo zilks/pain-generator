@@ -21,7 +21,7 @@ import {
   buildEndToEndId,
 } from '../utils/idGenerator';
 import { formatAmount } from '../utils/calculator';
-import { appendPmtTpInf } from './pain001.builder.base';
+import { appendPmtTpInf, appendRmtInf } from './pain001.builder.base';
 
 const NAMESPACE_V2019    = 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09';
 const SCHEMA_LOCATION_V2019 = 'pain.001.001.09.ch.03.xsd';
@@ -141,13 +141,5 @@ function buildCreditTransferV2019(
   cdtTrf.ele('CdtrAcct').ele('Id').ele('IBAN').txt(tx.creditorIban.replace(/\s/g, ''));
 
   // Remittance information (RemittanceInformation16_pain001_ch)
-  if (tx.remittanceInfoUnstructured || tx.remittanceInfoStructured) {
-    const rmtInf = cdtTrf.ele('RmtInf');
-    if (tx.remittanceInfoUnstructured) {
-      rmtInf.ele('Ustrd').txt(tx.remittanceInfoUnstructured);
-    }
-    if (tx.remittanceInfoStructured) {
-      rmtInf.ele('Strd').ele('AddtlRmtInf').txt(tx.remittanceInfoStructured);
-    }
-  }
+  appendRmtInf(cdtTrf, tx, testRunId);
 }

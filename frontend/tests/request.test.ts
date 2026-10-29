@@ -43,6 +43,18 @@ describe('buildRequest', () => {
     expect(tx).not.toHaveProperty('creditorBic');
     expect(tx.remittanceInfoStructured).toBe('Info');
     expect(tx).not.toHaveProperty('remittanceInfoUnstructured');
+    expect(tx).not.toHaveProperty('creditorReference');
+  });
+
+  it('sends the creditor reference only for structured remittance', () => {
+    const s = initialState('2026-05-01');
+    s.transactions[0] = { ...s.transactions[0], remittance: 'structured', remittanceText: '', reference: ' RF18539007547034 ' };
+    const tx = buildRequest(s).transactions[0];
+    expect(tx.creditorReference).toBe('RF18539007547034');
+    expect(tx).not.toHaveProperty('remittanceInfoStructured');
+
+    s.transactions[0] = { ...s.transactions[0], remittance: 'unstructured', remittanceText: 'Text' };
+    expect(buildRequest(s).transactions[0]).not.toHaveProperty('creditorReference');
   });
 
   it('adds file options only when switched on', () => {

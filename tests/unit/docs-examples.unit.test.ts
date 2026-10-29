@@ -36,8 +36,8 @@ const EXPECTED: Record<string, { contains: string[]; notContains?: string[] }> =
   'uc06-verwendungszweck.json': {
     contains: [
       '<RmtInf><Ustrd>Rechnung2026-0042</Ustrd></RmtInf>',
-      '<RmtInf><Strd><AddtlRmtInf>ZusatzinfozurZahlung</AddtlRmtInf></Strd></RmtInf>',
-      '<RmtInf><Ustrd>Rechnung2026-0043</Ustrd><Strd><AddtlRmtInf>ZusatzinfozurZahlung</AddtlRmtInf></Strd></RmtInf>',
+      '<RmtInf><Strd><CdtrRefInf><Tp><CdOrPrtry><Cd>SCOR</Cd></CdOrPrtry></Tp><Ref>RF92UC0602</Ref></CdtrRefInf><AddtlRmtInf>ZusatzinfozurZahlung</AddtlRmtInf></Strd></RmtInf>',
+      '<RmtInf><Ustrd>Rechnung2026-0043</Ustrd><Strd><CdtrRefInf><Tp><CdOrPrtry><Prtry>QRR</Prtry></CdOrPrtry></Tp><Ref>210000000003139471430009017</Ref></CdtrRefInf><AddtlRmtInf>ZusatzinfozurZahlung</AddtlRmtInf></Strd></RmtInf>',
     ],
   },
   'uc07-mehrere-transaktionen.json': {

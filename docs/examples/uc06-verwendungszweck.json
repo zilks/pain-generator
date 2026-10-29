@@ -6,6 +6,6 @@
   "transactions": [
     { "sequenceNumber": 1, "amount": 80.00, "currency": "CHF", "creditorIban": "CH5604835012345678009", "creditor": { "name": "Empfänger 1" }, "remittanceInfoUnstructured": "Rechnung 2026-0042" },
     { "sequenceNumber": 2, "amount": 90.00, "currency": "CHF", "creditorIban": "CH5604835012345678009", "creditor": { "name": "Empfänger 2" }, "remittanceInfoStructured": "Zusatzinfo zur Zahlung" },
-    { "sequenceNumber": 3, "amount": 100.00, "currency": "CHF", "creditorIban": "CH5604835012345678009", "creditor": { "name": "Empfänger 3" }, "remittanceInfoUnstructured": "Rechnung 2026-0043", "remittanceInfoStructured": "Zusatzinfo zur Zahlung" }
+    { "sequenceNumber": 3, "amount": 100.00, "currency": "CHF", "creditorIban": "CH4431999123000889012", "creditor": { "name": "Empfänger 3" }, "remittanceInfoUnstructured": "Rechnung 2026-0043", "remittanceInfoStructured": "Zusatzinfo zur Zahlung", "creditorReference": "210000000003139471430009017" }
   ]
 }
