@@ -88,6 +88,8 @@ const options: swaggerJsdoc.Options = {
             creditorIid:                  { type: 'string',  example: '769' },
             remittanceInfoUnstructured:   { type: 'string',  example: 'Rechnung 2025-001' },
             remittanceInfoStructured:     { type: 'string',  example: 'Zusatzinfo strukturiert' },
+            creditorReference:            { type: 'string',  example: 'RF18539007547034', description: 'Strd/CdtrRefInf/Ref (QR-Referenz oder ISO 11649). Fehlt sie, wird bei Strd eine gültige Referenz erzeugt.' },
+            creditorReferenceType:        { type: 'string',  enum: ['QRR', 'SCOR'], description: 'Standard: QRR bei QR-IBAN, sonst SCOR' },
           },
           required: ['sequenceNumber', 'amount', 'currency', 'creditor', 'creditorIban'],
         },

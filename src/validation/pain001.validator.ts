@@ -5,6 +5,7 @@
 import { isValidIBAN } from 'ibantools';
 import { Pain001Request, CreditTransfer } from '../types/pain001.types';
 import { isSepaTransaction } from '../utils/paymentType';
+import { isQrIban, isValidQrReference, isValidScorReference } from '../utils/creditorReference';
 
 export interface ValidationResult {
   valid: boolean;
@@ -125,6 +126,8 @@ function validateTransaction(tx: unknown, idx: number): string[] {
     errors.push(`${prefix}.creditorIban "${t.creditorIban}" is not a valid IBAN.`);
   }
 
+  errors.push(...validateCreditorReference(t, prefix));
+
   if (!t.creditor || typeof t.creditor !== 'object') {
     errors.push(`${prefix}.creditor is required.`);
   } else {
@@ -146,5 +149,39 @@ function validateTransaction(tx: unknown, idx: number): string[] {
     }
   }
 
+  return errors;
+}
+
+function validateCreditorReference(t: Record<string, unknown>, prefix: string): string[] {
+  const errors: string[] = [];
+  const type = t.creditorReferenceType;
+  if (type !== undefined && type !== 'QRR' && type !== 'SCOR') {
+    errors.push(`${prefix}.creditorReferenceType must be "QRR" or "SCOR".`);
+    return errors;
+  }
+
+  const iban = typeof t.creditorIban === 'string' ? t.creditorIban : '';
+  const qrIban = isQrIban(iban);
+  if (type === 'QRR' && iban && !qrIban) {
+    errors.push(`${prefix}.creditorReferenceType "QRR" requires a QR-IBAN as creditorIban.`);
+  }
+  if (type === 'SCOR' && qrIban) {
+    errors.push(`${prefix}.creditorReferenceType "SCOR" is not allowed with a QR-IBAN (use "QRR").`);
+  }
+
+  if (t.creditorReference !== undefined) {
+    if (typeof t.creditorReference !== 'string' || t.creditorReference.trim() === '') {
+      errors.push(`${prefix}.creditorReference must be a non-empty string.`);
+      return errors;
+    }
+    const ref = t.creditorReference.replace(/\s/g, '').toUpperCase();
+    const effectiveType = type ?? (qrIban ? 'QRR' : 'SCOR');
+    if (effectiveType === 'QRR' && !isValidQrReference(ref)) {
+      errors.push(`${prefix}.creditorReference "${t.creditorReference}" is not a valid QR reference (27 digits, modulo 10 recursive).`);
+    }
+    if (effectiveType === 'SCOR' && !isValidScorReference(ref)) {
+      errors.push(`${prefix}.creditorReference "${t.creditorReference}" is not a valid ISO 11649 creditor reference (RF…).`);
+    }
+  }
   return errors;
 }

@@ -83,6 +83,9 @@
   {#if tx.remittance !== 'none'}
     <div class="pg-grid">
       <Field id={id('remittance')} label={tx.remittance === 'unstructured' ? 'Freitext' : 'Zusatzinfo (AddtlRmtInf)'} bind:value={tx.remittanceText} />
+      {#if tx.remittance === 'structured'}
+        <Field id={id('reference')} label="Referenz (leer = automatisch)" bind:value={tx.reference} mono error={err('reference')} />
+      {/if}
     </div>
   {/if}
 

@@ -299,6 +299,8 @@ Content-Type: application/json
 | `transactions[].creditorIid` | `string` | – | IID des Empfänger-Instituts |
 | `transactions[].remittanceInfoUnstructured` | `string` | – | Verwendungszweck (Freitext) |
 | `transactions[].remittanceInfoStructured` | `string` | – | Verwendungszweck (strukturiert, AddtlRmtInf) |
+| `transactions[].creditorReference` | `string` | – | Referenz in `Strd/CdtrRefInf/Ref` (QR-Referenz oder RF…). Fehlt sie, wird bei strukturiertem Verwendungszweck eine gültige Referenz erzeugt |
+| `transactions[].creditorReferenceType` | `"QRR"` \| `"SCOR"` | – | Referenztyp (Standard: `QRR` bei QR-IBAN, sonst `SCOR`) |
 | `nbOfTxs` | `number` | – | Anzahl Transaktionen (Standard: auto aus Array) |
 | `ctrlSum` | `number` | – | Kontrollsumme (Standard: auto aus Beträgen) |
 | `version` | `"v2009"` \| `"v2019"` | – | PAIN-Version (Standard: `v2009`) |
@@ -509,7 +511,7 @@ npm test         # Jest-Tests (Unit, Integration, XSD-Validierung)
 Unter `/` liefert der Server ein kleines Web-Frontend aus, mit dem man PAIN.001-Dateien ohne manuellen API-Aufruf erstellt. Es ist reines Svelte 5 mit Vite (kein SvelteKit) und liegt in `frontend/`.
 
 - Oben wählt man die Version (`v2009` oder `v2019`), darunter füllt man die Pflichtfelder aus.
-- Optionales schaltet man mit kleinen Chips zu: Adresse (keine, strukturiert, unstrukturiert), Institut (BIC oder IID), Verwendungszweck (unstrukturiert oder strukturiert) sowie Sammelbuchung, zufällige MsgId, Erstellungszeit und abweichender Auftraggeber-Name. Nur zugeschaltete Eigenschaften gehen in den Request.
+- Optionales schaltet man mit kleinen Chips zu: Adresse (keine, strukturiert, unstrukturiert), Institut (BIC oder IID), Verwendungszweck (unstrukturiert oder strukturiert mit optionaler Referenz; leer lassen erzeugt sie automatisch) sowie Sammelbuchung, zufällige MsgId, Erstellungszeit und abweichender Auftraggeber-Name. Nur zugeschaltete Eigenschaften gehen in den Request.
 - Unstrukturierte Adressen sind in v2019 gesperrt, weil die API `adrLine` dort ignoriert.
 - «XML erstellen» ruft `POST /api/generate-pain001` auf und lädt die Datei herunter. Validierungsfehler (HTTP 422) erscheinen als Liste und markieren die betroffenen Felder.
 - Layout: Auf dem Desktop steht links das Formular, rechts das schwarze Ausgabe-Panel mit Anzahl, Kontrollsumme, Dateiname, «XML erstellen» und der Live-Vorschau des Requests (mit «Kopieren»). Unter 900px Breite wechseln Tabs zwischen «Formular» und «Vorschau»; «XML erstellen» bleibt unten fixiert und zeigt Anzahl und Summe. Bei Validierungsfehlern springt die mobile Ansicht zurück zum Formular.

@@ -8,6 +8,7 @@ describe('fieldKey / errorsByField', () => {
   it('maps API validation messages to form fields', () => {
     expect(fieldKey('transactions[2].creditorIban "X" is not a valid IBAN.')).toBe('tx.1.iban');
     expect(fieldKey('transactions[1].creditor.postalAddress.postCode is required.')).toBe('tx.0.postCode');
+    expect(fieldKey('transactions[1].creditorReference "RF00" is not a valid ISO 11649 creditor reference (RF…).')).toBe('tx.0.reference');
     expect(fieldKey('debtor.iban "X" is not a valid IBAN.')).toBe('debtor.iban');
     expect(fieldKey('executionDate "01.05." does not match the format YYYY-MM-DD.')).toBe('executionDate');
     expect(fieldKey('transactions must be a non-empty array.')).toBeUndefined();

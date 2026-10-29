@@ -289,6 +289,49 @@ describe('validator', () => {
 // ─────────────────────────────────────────────────────────────
 // XML Builder – v2009
 // ─────────────────────────────────────────────────────────────
+describe('validator – creditor reference', () => {
+  const body = (tx: Record<string, unknown>) => ({
+    executionDate: '2025-09-29',
+    testRunId: 'VERI-01',
+    debtor: { name: 'Test AG', iban: 'CH9300762011623852957' },
+    transactions: [{ sequenceNumber: 1, amount: 1, currency: 'CHF', creditorIban: 'CH5604835012345678009', creditor: { name: 'A' }, ...tx }],
+  });
+
+  it('accepts a valid SCOR reference', () => {
+    expect(validatePain001Request(body({ creditorReference: 'RF18 5390 0754 7034' })).valid).toBe(true);
+  });
+
+  it('accepts a valid QR reference with a QR-IBAN', () => {
+    const result = validatePain001Request(body({ creditorIban: 'CH4431999123000889012', creditorReference: '210000000003139471430009017' }));
+    expect(result.errors).toEqual([]);
+  });
+
+  it('rejects an invalid SCOR reference', () => {
+    const result = validatePain001Request(body({ creditorReference: 'RF19539007547034' }));
+    expect(result.errors[0]).toContain('not a valid ISO 11649 creditor reference');
+  });
+
+  it('rejects an invalid QR reference', () => {
+    const result = validatePain001Request(body({ creditorIban: 'CH4431999123000889012', creditorReference: '210000000003139471430009018' }));
+    expect(result.errors[0]).toContain('not a valid QR reference');
+  });
+
+  it('rejects an unknown reference type', () => {
+    const result = validatePain001Request(body({ creditorReferenceType: 'ISR' }));
+    expect(result.errors).toContain('transactions[1].creditorReferenceType must be "QRR" or "SCOR".');
+  });
+
+  it('rejects QRR without QR-IBAN and SCOR with QR-IBAN', () => {
+    expect(validatePain001Request(body({ creditorReferenceType: 'QRR' })).errors[0]).toContain('requires a QR-IBAN');
+    expect(validatePain001Request(body({ creditorIban: 'CH4431999123000889012', creditorReferenceType: 'SCOR' })).errors[0])
+      .toContain('not allowed with a QR-IBAN');
+  });
+
+  it('rejects an empty reference', () => {
+    expect(validatePain001Request(body({ creditorReference: ' ' })).errors[0]).toContain('must be a non-empty string');
+  });
+});
+
 describe('XML Builder v2009', () => {
   const base: ResolvedPain001Request = {
     executionDate: '2025-09-29',
@@ -375,6 +418,21 @@ describe('XML Builder v2009', () => {
   it('contains structured remittance information', () => {
     const xml = buildV2009(base);
     expect(xml).toContain('<AddtlRmtInf>Invoice 2025-001</AddtlRmtInf>');
+  });
+
+  it('structured remittance information always contains a creditor reference (SCOR)', () => {
+    const xml = buildV2009(base).replace(/\s/g, '');
+    expect(xml).toMatch(/<Strd><CdtrRefInf><Tp><CdOrPrtry><Cd>SCOR<\/Cd><\/CdOrPrtry><\/Tp><Ref>RF\d{2}[A-Z0-9]+<\/Ref><\/CdtrRefInf><AddtlRmtInf>/);
+  });
+
+  it('uses an explicit creditor reference without AddtlRmtInf', () => {
+    const req = {
+      ...base,
+      transactions: [{ ...base.transactions[0], remittanceInfoStructured: undefined, creditorReference: 'RF18539007547034' }],
+    };
+    const xml = buildV2009(req);
+    expect(xml).toContain('<Ref>RF18539007547034</Ref>');
+    expect(xml).not.toContain('<AddtlRmtInf>');
   });
 
   it('contains unstructured remittance information', () => {
@@ -617,6 +675,28 @@ describe('XML Builder v2019', () => {
       transactions: [{ ...resolved.transactions[0], remittanceInfoUnstructured: undefined, remittanceInfoStructured: 'Invoice 2025-001' }],
     };
     expect(buildV2019(req)).toContain('<AddtlRmtInf>Invoice 2025-001</AddtlRmtInf>');
+  });
+
+  it('structured remittance information always contains a creditor reference', () => {
+    const req = {
+      ...resolved,
+      transactions: [{ ...resolved.transactions[0], remittanceInfoStructured: 'Invoice 2025-001' }],
+    };
+    const xml = buildV2019(req).replace(/\s/g, '');
+    expect(xml).toMatch(/<Strd><CdtrRefInf><Tp><CdOrPrtry><Cd>SCOR<\/Cd><\/CdOrPrtry><\/Tp><Ref>RF\d{2}[A-Z0-9]+<\/Ref><\/CdtrRefInf><AddtlRmtInf>Invoice2025-001<\/AddtlRmtInf><\/Strd>/);
+  });
+
+  it('uses a QR reference (Prtry=QRR) for a QR-IBAN', () => {
+    const req = {
+      ...resolved,
+      transactions: [{
+        ...resolved.transactions[0],
+        creditorIban: 'CH4431999123000889012',
+        creditorReference: '210000000003139471430009017',
+      }],
+    };
+    const xml = buildV2019(req).replace(/\s/g, '');
+    expect(xml).toContain('<CdtrRefInf><Tp><CdOrPrtry><Prtry>QRR</Prtry></CdOrPrtry></Tp><Ref>210000000003139471430009017</Ref></CdtrRefInf>');
   });
 
   it('no RmtInf block when no remittance info is provided', () => {

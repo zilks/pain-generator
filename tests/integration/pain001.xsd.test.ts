@@ -76,6 +76,20 @@ const scenarios: { name: string; body: Record<string, unknown> }[] = [
     },
   },
   {
+    name: 'structured remittance with explicit SCOR reference and Ustrd',
+    body: {
+      ...baseBody,
+      transactions: [{ ...baseBody.transactions[0], remittanceInfoUnstructured: 'Rechnung', creditorReference: 'RF18539007547034' }],
+    },
+  },
+  {
+    name: 'QR-IBAN with generated QR reference',
+    body: {
+      ...baseBody,
+      transactions: [{ ...baseBody.transactions[0], creditorIban: 'CH4431999123000889012', remittanceInfoStructured: 'QR-Rechnung' }],
+    },
+  },
+  {
     name: 'structured creditor postal address',
     body: {
       ...baseBody,
