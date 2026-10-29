@@ -4,10 +4,10 @@ import type { FormState, Pain001Request, PostalAddress, TransactionForm, Transac
 function postalAddress(t: TransactionForm): PostalAddress | undefined {
   if (t.address === 'structured') {
     return {
-      streetName: t.street,
+      streetName: t.street || undefined,
       buildingNumber: t.buildingNumber || undefined,
-      postCode: t.postCode,
-      townName: t.town,
+      postCode: t.postCode || undefined,
+      townName: t.town || undefined,
       country: t.country,
     };
   }

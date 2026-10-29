@@ -134,17 +134,10 @@ function validateTransaction(tx: unknown, idx: number): string[] {
     }
     if (c.postalAddress !== undefined) {
       const pa = c.postalAddress as Record<string, unknown>;
-      const hasAdrLine = Array.isArray(pa.adrLine) && (pa.adrLine as unknown[]).length > 0;
-      if (!hasAdrLine) {
-        // Strukturierte Adresse: Felder sind Pflicht
-        if (!pa.streetName || typeof pa.streetName !== 'string') {
-          errors.push(`${prefix}.creditor.postalAddress.streetName is required.`);
-        }
-        if (!pa.postCode || typeof pa.postCode !== 'string') {
-          errors.push(`${prefix}.creditor.postalAddress.postCode is required.`);
-        }
-        if (!pa.townName || typeof pa.townName !== 'string') {
-          errors.push(`${prefix}.creditor.postalAddress.townName is required.`);
+      // Strukturierte Adressfelder sind gemäss XSD optional (minOccurs="0") – nur der Typ wird geprüft
+      for (const field of ['streetName', 'buildingNumber', 'postCode', 'townName']) {
+        if (pa[field] !== undefined && typeof pa[field] !== 'string') {
+          errors.push(`${prefix}.creditor.postalAddress.${field} must be a string.`);
         }
       }
       if (!pa.country || typeof pa.country !== 'string' || !COUNTRY_REGEX.test(pa.country as string)) {

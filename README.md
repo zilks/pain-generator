@@ -32,7 +32,7 @@ Die Request-Parameter sind für beide Versionen identisch. Die Unterschiede betr
 
 ## Kreditor-Adressen (Postal Address)
 
-Die Adresse des Kreditors (`postalAddress`) ist optional. Wenn sie angegeben wird, unterscheiden sich Format und Verarbeitung je nach PAIN.001-Version.
+Die Adresse des Kreditors (`postalAddress`) ist optional. Wenn sie angegeben wird, ist nur `country` Pflicht; alle strukturierten Felder (`streetName`, `buildingNumber`, `postCode`, `townName`) sind gemäss SIX-Schema optional und werden nur gerendert, wenn sie gesetzt sind. Format und Verarbeitung unterscheiden sich je nach PAIN.001-Version.
 
 ### v2009 – Strukturierte Adresse
 
@@ -110,7 +110,7 @@ In v2019 wird ausschliesslich die strukturierte Variante unterstützt. `AdrTp` i
 | Merkmal | v2009 strukturiert | v2009 unstrukturiert | v2019 |
 |---|---|---|---|
 | `AdrTp` | nicht vorhanden | `ADDR` | nicht vorhanden |
-| Adressfelder | `StrtNm`, `BldgNb`, `PstCd`, `TwnNm` | – | `StrtNm`, `BldgNb`, `PstCd`, `TwnNm` |
+| Adressfelder (alle optional) | `StrtNm`, `BldgNb`, `PstCd`, `TwnNm` | – | `StrtNm`, `BldgNb`, `PstCd`, `TwnNm` |
 | `AdrLine` | – | max. 2 Zeilen | nicht unterstützt |
 | `Ctry` | ✅ | ✅ | ✅ |
 
@@ -294,7 +294,7 @@ Content-Type: application/json
 | `transactions[].currency` | `string` | ✅ | Währung (ISO 4217, z.B. `CHF`) |
 | `transactions[].creditorIban` | `string` | ✅ | IBAN des Gutschriftskontos |
 | `transactions[].creditor.name` | `string` | ✅ | Name des Begünstigten |
-| `transactions[].creditor.postalAddress` | `object` | – | Adresse des Begünstigten |
+| `transactions[].creditor.postalAddress` | `object` | – | Adresse des Begünstigten; darin ist nur `country` Pflicht |
 | `transactions[].creditorBic` | `string` | – | BIC des Empfänger-Instituts |
 | `transactions[].creditorIid` | `string` | – | IID des Empfänger-Instituts |
 | `transactions[].remittanceInfoUnstructured` | `string` | – | Verwendungszweck (Freitext) |

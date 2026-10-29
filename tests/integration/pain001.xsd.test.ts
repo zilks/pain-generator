@@ -89,6 +89,26 @@ const scenarios: { name: string; body: Record<string, unknown> }[] = [
     },
   },
   {
+    name: 'structured creditor postal address with only town and country',
+    body: {
+      ...baseBody,
+      transactions: [{
+        ...baseBody.transactions[0],
+        creditor: { name: 'Recipient GmbH', postalAddress: { townName: 'Zürich', country: 'CH' } },
+      }],
+    },
+  },
+  {
+    name: 'creditor postal address with only country',
+    body: {
+      ...baseBody,
+      transactions: [{
+        ...baseBody.transactions[0],
+        creditor: { name: 'Recipient GmbH', postalAddress: { country: 'CH' } },
+      }],
+    },
+  },
+  {
     name: 'EUR payment to a German creditor',
     body: {
       ...baseBody,
