@@ -24,7 +24,7 @@
     <span class="pg-card__meta">{tx.currency} {formatAmount(parseAmount(tx.amount))}</span>
   </div>
 
-  <div class="pg-grid">
+  <div class="pg-grid pg-grid--tx">
     <Field id={id('creditor')} label="Empfänger" bind:value={tx.creditor} required error={err('creditor')} />
     <Field id={id('iban')} label="IBAN" bind:value={tx.iban} required mono error={err('iban')} />
     <Field id={id('amount')} label="Betrag" bind:value={tx.amount} required mono error={err('amount')} />
