@@ -15,7 +15,7 @@
     "test:smoke": "jest --config jest.smoke.config.json"
   },
   "dependencies": {
-    "express": "^5.2.1",
+    "express": "^5.3.0",
     "ibantools": "^4.5.1",
     "swagger-jsdoc": "^6.3.0",
     "swagger-ui-express": "^5.0.1",
