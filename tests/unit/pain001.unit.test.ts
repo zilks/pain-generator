@@ -243,6 +243,43 @@ describe('validator', () => {
     expect(result.errors.some(e => e.includes('country'))).toBe(true);
   });
 
+  const withAddress = (postalAddress: Record<string, unknown>) => ({
+    ...validBody,
+    transactions: [{
+      sequenceNumber: 1, amount: 10, currency: 'CHF',
+      creditorIban: 'CH9300762011623852957',
+      creditor: { name: 'X', postalAddress },
+    }],
+  });
+
+  it('structured postalAddress with only country is accepted', () => {
+    const result = validatePain001Request(withAddress({ country: 'CH' }));
+    expect(result.errors).toEqual([]);
+    expect(result.valid).toBe(true);
+  });
+
+  it('structured postalAddress with partial fields is accepted', () => {
+    expect(validatePain001Request(withAddress({ townName: 'Bern', country: 'CH' })).valid).toBe(true);
+    expect(validatePain001Request(withAddress({ streetName: 'Str', country: 'CH' })).valid).toBe(true);
+  });
+
+  it('structured postalAddress with empty strings is accepted', () => {
+    const result = validatePain001Request(withAddress({ streetName: '', postCode: '', townName: '', country: 'CH' }));
+    expect(result.valid).toBe(true);
+  });
+
+  it('structured postalAddress field with wrong type is rejected', () => {
+    const result = validatePain001Request(withAddress({ postCode: 4001, country: 'CH' }));
+    expect(result.valid).toBe(false);
+    expect(result.errors).toContain('transactions[1].creditor.postalAddress.postCode must be a string.');
+  });
+
+  it('postalAddress without country is rejected', () => {
+    const result = validatePain001Request(withAddress({ streetName: 'Str', townName: 'Bern' }));
+    expect(result.valid).toBe(false);
+    expect(result.errors.some(e => e.includes('country'))).toBe(true);
+  });
+
   it('non-JSON-object body', () => {
     const result = validatePain001Request('not an object');
     expect(result.valid).toBe(false);

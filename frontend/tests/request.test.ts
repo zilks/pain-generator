@@ -35,6 +35,14 @@ describe('buildRequest', () => {
     expect(buildRequest(s).transactions[0].creditor.postalAddress).toEqual({ adrLine: ['Hauptstrasse 1'], country: 'CH' });
   });
 
+  it('leaves empty structured address fields out, they are optional', () => {
+    const s = initialState('2026-05-01');
+    s.transactions[0] = { ...s.transactions[0], address: 'structured', town: 'Basel' };
+    expect(JSON.parse(JSON.stringify(buildRequest(s).transactions[0].creditor.postalAddress))).toEqual({
+      townName: 'Basel', country: 'CH',
+    });
+  });
+
   it('maps agent and remittance choices to the matching API fields', () => {
     const s = initialState('2026-05-01');
     s.transactions[0] = { ...s.transactions[0], agent: 'iid', iid: '4835', bic: 'IGNORED', remittance: 'structured', remittanceText: 'Info' };

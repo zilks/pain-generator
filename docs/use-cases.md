@@ -56,7 +56,7 @@ Unterschiede im XML zwischen den Versionen: siehe [README – Unterschiede v2009
 
 ### UC03 – Strukturierte Kreditor-Adresse
 
-Pflicht sind `streetName`, `postCode`, `townName` und `country`; `buildingNumber` ist optional.
+Pflicht ist nur `country`. `streetName`, `buildingNumber`, `postCode` und `townName` sind optional (gemäss XSD `minOccurs="0"`) und werden nur gerendert, wenn sie gesetzt sind. Wird ein Feld angegeben, muss es ein String sein.
 
 In beiden Versionen werden die Einzelfelder ohne `AdrTp` gerendert (`STRD` ist kein gültiger `AddressType2Code`; v2019 nutzt `PostalAddress24_pain001_ch_3`).
 
