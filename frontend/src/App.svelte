@@ -2,6 +2,7 @@
   import Alert from './components/Alert.svelte';
   import ChipGroup from './components/ChipGroup.svelte';
   import Field from './components/Field.svelte';
+  import Logo from './components/Logo.svelte';
   import ToggleChip from './components/ToggleChip.svelte';
   import TransactionCard from './components/TransactionCard.svelte';
   import VersionSwitch from './components/VersionSwitch.svelte';
@@ -47,7 +48,7 @@
 <div class="app">
   <header class="top">
     <div class="top__in">
-      <div class="brand"><span class="brand__mark" aria-hidden="true">+</span>PAIN Generator</div>
+      <Logo />
       <nav>
         <span class="tag">Nur Testdaten</span>
         <a href="/api">API-Doku</a>
@@ -164,8 +165,6 @@
   .app { min-height: 100vh; display: flex; flex-direction: column; }
   .top { background: var(--ink); color: var(--on-ink); border-bottom: 4px solid var(--red); }
   .top__in { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); padding: var(--space-3) var(--space-8); flex-wrap: wrap; }
-  .brand { display: flex; align-items: center; gap: var(--space-3); font-weight: 800; font-size: 18px; letter-spacing: -0.01em; }
-  .brand__mark { width: 22px; height: 22px; background: var(--red); border-radius: var(--radius-sm); display: grid; place-items: center; color: var(--on-red); font: 700 15px/1 var(--font-sans); }
   nav { display: flex; gap: var(--space-4); font-size: 14px; color: var(--muted-on-ink); align-items: center; }
   nav a { color: var(--on-ink); text-decoration: underline; text-decoration-color: var(--red-on-ink); text-underline-offset: 3px; }
   .tag { border: 1px solid var(--muted-on-ink); border-radius: var(--radius-sm); padding: 2px var(--space-2); font-size: 12px; }
