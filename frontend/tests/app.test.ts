@@ -1,5 +1,5 @@
 import { flushSync, mount, unmount } from 'svelte';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import App from '../src/App.svelte';
 
 let app: ReturnType<typeof mount> | undefined;
@@ -60,5 +60,40 @@ describe('App', () => {
     expect(preview().transactions).toHaveLength(2);
     click([...document.querySelectorAll('button')].find((b) => b.textContent === 'Transaktion entfernen')!);
     expect(preview().transactions).toHaveLength(1);
+  });
+
+  it('switches between form and preview tabs', () => {
+    render();
+    const form = document.querySelector('#panel-form')!;
+    const output = document.querySelector('#panel-output')!;
+    const tabForm = document.querySelector('#tab-form')!;
+    const tabOutput = document.querySelector('#tab-output')!;
+    expect(tabForm.getAttribute('aria-selected')).toBe('true');
+    expect(form.classList.contains('is-hidden')).toBe(false);
+    click(tabOutput);
+    expect(tabOutput.getAttribute('aria-selected')).toBe('true');
+    expect(tabForm.getAttribute('aria-selected')).toBe('false');
+    expect(form.classList.contains('is-hidden')).toBe(true);
+    expect(output.classList.contains('is-active')).toBe(true);
+    click(tabForm);
+    expect(form.classList.contains('is-hidden')).toBe(false);
+  });
+
+  it('shows count and checksum on the submit button', () => {
+    render();
+    const meta = () => document.querySelector('.act__meta')!.textContent;
+    expect(meta()).toBe('1 Tx · 1.00');
+    click([...document.querySelectorAll('button')].find((b) => b.textContent === 'Transaktion hinzufügen')!);
+    expect(meta()).toBe('2 Tx · 1.00');
+  });
+
+  it('copies the request preview', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+    render();
+    const copy = document.querySelector('.copy') as HTMLButtonElement;
+    copy.click();
+    expect(writeText).toHaveBeenCalledWith(document.querySelector('[data-testid=preview]')!.textContent);
+    await vi.waitFor(() => expect(copy.textContent).toBe('Kopiert'));
   });
 });

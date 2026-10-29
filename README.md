@@ -512,6 +512,7 @@ Unter `/` liefert der Server ein kleines Web-Frontend aus, mit dem man PAIN.001-
 - Optionales schaltet man mit kleinen Chips zu: Adresse (keine, strukturiert, unstrukturiert), Institut (BIC oder IID), Verwendungszweck (unstrukturiert oder strukturiert) sowie Sammelbuchung, zufällige MsgId, Erstellungszeit und abweichender Auftraggeber-Name. Nur zugeschaltete Eigenschaften gehen in den Request.
 - Unstrukturierte Adressen sind in v2019 gesperrt, weil die API `adrLine` dort ignoriert.
 - «XML erstellen» ruft `POST /api/generate-pain001` auf und lädt die Datei herunter. Validierungsfehler (HTTP 422) erscheinen als Liste und markieren die betroffenen Felder.
+- Layout: Auf dem Desktop steht links das Formular, rechts das schwarze Ausgabe-Panel mit Anzahl, Kontrollsumme, Dateiname, «XML erstellen» und der Live-Vorschau des Requests (mit «Kopieren»). Unter 900px Breite wechseln Tabs zwischen «Formular» und «Vorschau»; «XML erstellen» bleibt unten fixiert und zeigt Anzahl und Summe. Bei Validierungsfehlern springt die mobile Ansicht zurück zum Formular.
 - Das Design (Weiss, Rot, Schwarz als Akzent) ist im Designsystem beschrieben; die Tokens stehen in `frontend/src/styles.css`.
 - Logo «Struktur»: ein roter Balken mit eingerückten Zeilen, angelehnt an den Aufbau einer pain.001 (Zahlungsgruppe und Transaktionen). Die Komponente `frontend/src/components/Logo.svelte` zeigt Symbol und Wortmarke; die Zeilen übernehmen die Textfarbe, so passt das Symbol auf hellen und dunklen Grund. Das Favicon liegt in `frontend/public/favicon.svg`.
 

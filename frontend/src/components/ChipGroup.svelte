@@ -12,15 +12,17 @@
 <!-- Einzelwahl: eine Option ist immer aktiv -->
 <div class="pg-chipgroup" role="radiogroup" aria-label={label}>
   <span class="pg-label">{label}</span>
-  {#each options as o (o.value)}
-    <button
-      type="button"
-      class="pg-chip"
-      role="radio"
-      aria-checked={value === o.value}
-      disabled={o.disabled}
-      title={o.title}
-      onclick={() => (value = o.value)}
-    >{o.label}</button>
-  {/each}
+  <div class="pg-chipgroup__opts">
+    {#each options as o (o.value)}
+      <button
+        type="button"
+        class="pg-chip"
+        role="radio"
+        aria-checked={value === o.value}
+        disabled={o.disabled}
+        title={o.title}
+        onclick={() => (value = o.value)}
+      >{o.label}</button>
+    {/each}
+  </div>
 </div>
